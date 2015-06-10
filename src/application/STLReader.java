@@ -14,24 +14,27 @@ import math.Vecteur3D;
 
 public class STLReader {
 	
-	private Shape3D shape;
+	private Scanner sc;
 	
 	/** Constructeur */
 	public STLReader() {
-		
-		Scanner sc = null;
+		sc = null;
+	}
+	
+	/** Retourne la shape3D du fichier stl */
+	public Shape3D getShape(String filename) {
 		String line = "";
 		String[] tab;
 		Vecteur3D vect;
 		Point3D point1, point2, point3;
 		double dx, dy, dz, x, y, z;
 		
-		shape = new Shape3D(null, 0, 0, 0);
+		Shape3D shape = new Shape3D(null, 0, 0, 0);
 		Triangle triangle;
 		
 		try {
 			
-			sc = new Scanner(new FileInputStream("model/sphere.stl"));
+			sc = new Scanner(new FileInputStream("model/" + filename));
 			while (sc.hasNextLine()) {
 				line = sc.nextLine();
 				tab = line.split(" ");
@@ -75,9 +78,7 @@ public class STLReader {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public Shape3D getShape() {
+		
 		return shape;
 	}
 }

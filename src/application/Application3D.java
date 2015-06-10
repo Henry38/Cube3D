@@ -68,9 +68,9 @@ public class Application3D extends Thread {
 		Cube cube1 = new Cube(null, 0, 0, 0);
 		Cube cube2 = new Cube(null, -1.1, -1.1, 0);
 		
-		//STLReader read = new STLReader();
-		//Shape3D pion = read.getShape();
-		//pion.rotationOx(Math.PI/4);
+//		STLReader read = new STLReader();
+//		Shape3D pion = read.getShape("pion.stl");
+//		pion.rotationOx(Math.PI/4);
 		
 		World3D world = new World3D();
 		//world.addShape(pion);
@@ -83,7 +83,7 @@ public class Application3D extends Thread {
 		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
-		Observer observer1 = new Observer(world, camera1, 1280, 768);
+		Observer observer1 = new Observer(world, camera1, 640, 480);
 		//Observer observer2 = new Observer(world, camera2, 640, 480);
 		
 		JPanel panneau = new JPanel();
