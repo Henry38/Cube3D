@@ -378,17 +378,15 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			int x, y;
 			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
 			double area1, area2, area3, d, h, z;
-			double coefLight;
-			Color col;
 			
-			coefLight = Vecteur3D.produit_scalaire(triangle.getNormale(), light.getDirection());
-			if (coefLight < 0) {
-				int r = (int) (200 * Math.min(-coefLight, 1.0));
-				col = new Color(r, 0, 0);
-			} else {
-				int r = (int) (80 * coefLight);
-				col = new Color(r, 0, 0);
-			}
+//			double coefLight = Vecteur3D.produit_scalaire(triangle.getNormale(), light.getDirection());
+//			if (coefLight < 0) {
+//				int r = (int) (200 * Math.min(-coefLight, 1.0));
+//				col = new Color(r, 0, 0);
+//			} else {
+//				int r = (int) (80 * coefLight);
+//				col = new Color(r, 0, 0);
+//			}
 			
 			ArrayList<Cell> arrayCell = hash.getArray();
 			for (int k = 0; k < arrayCell.size(); k++) {
@@ -427,23 +425,15 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 //		    			v3 = (area3 / d) * (listCoord[2].getY() / proj_p3.getW());
 //		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
 		    			
-		    			//col = color;
 		    			z = (z1 + z2 + z3) / h;
 		    			
 		    			if (z < zBuffer[(y * viewportWidth) + x]) {
 		    				zBuffer[(y * viewportWidth) + x] = z;
 		    				
-//		    				if (coefLight < 0) {
-//		    				} else {
-//		    					r = (int) (col.getRed() - coefLight);
-//		    					g = (int) (col.getGreen() - coefLight);
-//		    					b = (int) (col.getBlue() - coefLight);
-//		    				}
-		    				
-		    				//col = new Color(texture.getRGB((int)(((u1+u2+u3)/h)*255), (int)(((v1+v2+v3)/h)*255)));
-		    				colorBuffer[index + 0] = col.getRed();
-		    				colorBuffer[index + 1] = col.getGreen();
-		    				colorBuffer[index + 2] = col.getBlue();
+		    				//color = new Color(texture.getRGB((int)(((u1+u2+u3)/h)*255), (int)(((v1+v2+v3)/h)*255)));
+		    				colorBuffer[index + 0] = color.getRed();
+		    				colorBuffer[index + 1] = color.getGreen();
+		    				colorBuffer[index + 2] = color.getBlue();
 		    			}
 					}
 					x += x_inc;
@@ -464,7 +454,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		for (Triangle triangle : shape.getListTriangle()) {
 			// Back face culling
-			System.out.println("a");
 			if (triangle.isVisible(modelMat, camera.getOrigine())) {
 				color = triangle.getColor();
 				//drawEdgeTriangle(triangle);

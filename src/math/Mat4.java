@@ -1,7 +1,7 @@
 package math;
 
 public class Mat4 {
-
+	
 	private double[][] matrix;
 	
 	/** Constructeur */

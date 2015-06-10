@@ -63,7 +63,7 @@ public class Triangle {
 		Vecteur3D vision = new Vecteur3D(dx, dy, dz);
 		Vecteur3D normale = modelMat.mult(new Vec4(getNormale())).toVecteur3D();
 		
-		return (Vecteur3D.produit_scalaire(vision, normale) > 0);
+		return (Vecteur3D.produit_scalaire(vision, normale) < 0);
 	}
 	
 //	public Vecteur3D getVision(Mat4 modelMat, Point3D eye) {

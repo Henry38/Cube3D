@@ -2,30 +2,27 @@ package math;
 
 public class Vecteur3D {
 	
-	private Matrix matrix;
+	private double dist_x, dist_y, dist_z;
 	
 	/** Constructeur */
 	public Vecteur3D() {
-		matrix = new Matrix(3, 1);
-		setDx(0);
-		setDy(0);
-		setDz(0);
+		this.dist_x = 0;
+		this.dist_y = 0;
+		this.dist_z = 0;
 	}
 	
 	/** Constructeur */
 	public Vecteur3D(double dist_x, double dist_y, double dist_z) {
-		matrix = new Matrix(3, 1);
-		setDx(dist_x);
-		setDy(dist_y);
-		setDz(dist_z);
+		this.dist_x = dist_x;
+		this.dist_y = dist_y;
+		this.dist_z = dist_z;
 	}
 	
-	/** COnstructeur */
+	/** Constructeur */
 	public Vecteur3D(Point3D a, Point3D b) {
-		matrix = new Matrix(3, 1);
-		setDx(b.getX() - a.getX());
-		setDy(b.getY() - a.getY());
-		setDz(b.getZ() - a.getZ());
+		this.dist_x = b.getX() - a.getX();
+		this.dist_y = b.getY() - a.getY();
+		this.dist_z = b.getZ() - a.getZ();
 	}
 	
 	/** Retourne une copie du vecteur */
@@ -35,17 +32,32 @@ public class Vecteur3D {
 	
 	/** Retourne la composante x du vecteur */
 	public double getDx() {
-		return matrix.get(0, 0);
+		return dist_x;
 	}
 	
 	/** Retourne la composante y du vecteur */
 	public double getDy() {
-		return matrix.get(1, 0);
+		return dist_y;
 	}
 	
 	/** Retourne la composante z du vecteur */
 	public double getDz() {
-		return matrix.get(2, 0);
+		return dist_z;
+	}
+	
+	/** Set la composante x du vecteur */
+	public void setDx(double dist_x) {
+		this.dist_x = dist_x;
+	}
+	
+	/** Set la composante y du vecteur */
+	public void setDy(double dist_y) {
+		this.dist_y = dist_y;
+	}
+	
+	/** Set la composante z du vecteur */
+	public void setDz(double dist_z) {
+		this.dist_z = dist_z;
 	}
 	
 	/** Retourne la matrice des coordonnes homogenes du vecteur */
@@ -58,22 +70,12 @@ public class Vecteur3D {
 		return m;
 	}
 	
-	public void setDx(double dist_x) {
-		matrix.set(0, 0, dist_x);
-	}
-	
-	public void setDy(double dist_y) {
-		matrix.set(1, 0, dist_y);
-	}
-	
-	public void setDz(double dist_z) {
-		matrix.set(2, 0, dist_z);
-	}
-	
+	/** Retourne la norme du vecteur */
 	public double getNorme() {
 		return Math.sqrt(Math.pow(getDx(), 2) + Math.pow(getDy(), 2) + Math.pow(getDz(), 2));
 	}
 	
+	/** Retourne le vecteur unitaire */
 	public Vecteur3D getVecteurUnitaire() {
 		double norme = getNorme();
 		double dx, dy, dz;
@@ -83,14 +85,11 @@ public class Vecteur3D {
 		return new Vecteur3D(dx, dy, dz);
 	}
 	
-	public final Matrix getMatrix() {
-		return matrix;
-	}
-	
 	public String toString() {
 		return "(" + ((int)(getDx()*100))/100.0 + " , " + ((int)(getDy()*100))/100.0 + " , " + ((int)(getDz()*100))/100.0 + ")";
 	}
 	
+	/** Normalise le vecteur */
 	public void normalized() {
 		double norme = getNorme();
 		setDx(getDx() / norme);
@@ -98,18 +97,21 @@ public class Vecteur3D {
 		setDz(getDz() / norme);
 	}
 	
+	/** Ajoute le vecteur passe en parametre */
 	public void plus(Vecteur3D vect) {
 		setDx(getDx() + vect.getDx());
 		setDy(getDy() + vect.getDy());
 		setDz(getDz() + vect.getDz());
 	}
 	
+	/** Soustrait le vecteur passe en parametre */
 	public void minus(Vecteur3D vect) {
 		setDx(getDx() - vect.getDx());
 		setDy(getDy() - vect.getDy());
 		setDz(getDz() - vect.getDz());
 	}
 	
+	/** Multiplie par le coefficent passe en parametre */
 	public void mult(double k) {
 		setDx(k * getDx());
 		setDy(k * getDy());
@@ -126,7 +128,7 @@ public class Vecteur3D {
 		return new Vecteur3D(dx, dy, dz);
 	}
 	
-	/** Rotation du vecteur autour d'un axe et avec un angle donnee */
+	/** Rotation du vecteur autour d'un axe et avec un angle donne */
 	public void rotationAxe(Vecteur3D axe, double radian) {
 		double x = getDx();
 		double y = getDy();
@@ -169,6 +171,7 @@ public class Vecteur3D {
 		return produit_vectoriel(vect1, vect2).getNorme() / (vect1.getNorme() * vect2.getNorme());
 	}
 	
+	/** Retourne vrai si les deux vecteurs sont colinaires */
 	public static boolean colineaire(Vecteur3D vect1, Vecteur3D vect2) {
 		boolean a = Math.abs(vect1.getDx()/vect2.getDx() - vect1.getDy()/vect2.getDy()) < 0.01;
 		boolean b = Math.abs(vect1.getDy()/vect2.getDy() - vect1.getDz()/vect2.getDz()) < 0.01;

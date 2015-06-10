@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import math.Point3D;
 import math.Vecteur3D;
 import geometry.Cube;
-import geometry.Damier;
 import geometry.Light;
 import geometry.Shape3D;
 import graphics.Observer;
@@ -69,14 +68,14 @@ public class Application3D extends Thread {
 		Cube cube1 = new Cube(null, 0, 0, 0);
 		Cube cube2 = new Cube(null, -1.1, -1.1, 0);
 		
-		STLReader read = new STLReader();
-		Shape3D pion = read.getShape();
+		//STLReader read = new STLReader();
+		//Shape3D pion = read.getShape();
 		//pion.rotationOx(Math.PI/4);
 		
 		World3D world = new World3D();
-		world.addShape(pion);
+		//world.addShape(pion);
 		//world.addShape(new Damier(null));
-//		world.addShape(cube1);
+		world.addShape(cube1);
 //		world.addShape(cube2);
 		world.setLight(light);
 		

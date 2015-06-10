@@ -2,24 +2,28 @@ package math;
 
 public class Coord {
 	
-	private double coordX;
-	private double coordY;
+	private double coordU;
+	private double coordV;
 	
+	/** Constructeur */
 	public Coord() {
-		this.coordX = 0.0;
-		this.coordY = 0.0;
+		this.coordU = 0.0;
+		this.coordV = 0.0;
 	}
 	
+	/** Constructeur */
 	public Coord(double coordX, double coordY) {
-		this.coordX = coordX;
-		this.coordY = coordY;
+		this.coordU = coordX;
+		this.coordV = coordY;
 	}
 	
-	public double getX() {
-		return coordX;
+	/** Retourne la composante u */
+	public double getU() {
+		return coordU;
 	}
 	
-	public double getY() {
-		return coordY;
+	/** Retourne la composante v */
+	public double getV() {
+		return coordV;
 	}
 }

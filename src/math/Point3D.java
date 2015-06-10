@@ -2,81 +2,79 @@ package math;
 
 public class Point3D {
 	
-	private Matrix matrix;
+	private double x, y, z;
 	
+	/** Constructeur */
 	public Point3D() {
-		matrix = new Matrix(3, 1);
-		setX(0);
-		setY(0);
-		setZ(0);
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
 	}
 	
+	/** Constructeur */
 	public Point3D(double x, double y, double z) {
-		matrix = new Matrix(3, 1);
-		setX(x);
-		setY(y);
-		setZ(z);
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 	
+	/** Clone et retourne le point */
 	public Point3D clone() {
 		return new Point3D(getX(), getY(), getZ());
 	}
 	
 	/** Retourne la composante x du point */
 	public double getX() {
-		return matrix.get(0, 0);
+		return x;
 	}
 	
 	/** Retourne la composante y du point */
 	public double getY() {
-		return matrix.get(1, 0);
+		return y;
 	}
 	
 	/** Retourne la composante z du point */
 	public double getZ() {
-		return matrix.get(2, 0);
+		return z;
 	}
 	
+	/** Set la composante x du point */
 	public void setX(double x) {
-		matrix.set(0, 0, x);
+		this.x = x;
 	}
 	
+	/** Set la composante y du point */
 	public void setY(double y) {
-		matrix.set(1, 0, y);
+		this.y = y;
 	}
 	
+	/** Set la composante z du point */
 	public void setZ(double z) {
-		matrix.set(2, 0, z);
+		this.z = z;
 	}
 	
+	/** Retourne la distance a l'origine */
 	public double getModule() {
 		return Math.sqrt(getX()*getX() + getY()*getY() + getZ()*getZ());
-	}
-	
-	public final Matrix getMatrix() {
-		return matrix;
-		/*return new Matrix(new double[][] {
-				{getX()},
-				{getY()},
-				{getZ()}
-		});*/
 	}
 	
 	public String toString() {
 		return "(" + getX() + ", " + getY() + ", " + getZ() + ")";
 	}
 	
+	/** Translate le point */
 	public void translation(double dx, double dy, double dz) {
 		setX(getX() + dx);
 		setY(getY() + dy);
 		setZ(getZ() + dz);
 	}
 	
+	/** Translate le point */
 	public void translation(Vecteur3D t) {
 		translation(t.getDx(), t.getDy(), t.getDz());
 	}
 	
-	/** Rotation d'un point autour d'un axe et avec un angle donnee */
+	/** Rotation du point autour d'un axe et avec un angle donne */
 	public void rotationAxe(Vecteur3D axe, int degre) {
 		double radian = ((double) degre / 180.0) * Math.PI;
 		double x = getX();
@@ -96,15 +94,18 @@ public class Point3D {
 				z * (Math.pow(vect.getDz(), 2) + (1 - Math.pow(vect.getDz(), 2)) * cos) );
 	}
 	
+	/** Retourne la distance entre deux points */
 	public static double distance(Point3D p1, Point3D p2) {
 		Vecteur3D vect = new Vecteur3D(p1, p2);
 		return vect.getNorme();
 	}
 	
+	/** Retourne vrai si les deux points sont distinct */
 	public static boolean distinct(Point3D p1, Point3D p2) {
 		return (Point3D.distance(p1, p2) > 0.001);
 	}
 	
+	/** Retourne vrai si les trois ne sont pas alignes */
 	public static boolean aligner(Point3D p1, Point3D p2, Point3D p3) {
 		Vecteur3D vect1 = new Vecteur3D(p1, p2);
 		Vecteur3D vect2 = new Vecteur3D(p1, p3);

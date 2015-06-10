@@ -16,26 +16,36 @@ public class Point2D {
 		this.y = y;
 	}
 	
+	/** Retourne la composante x du point */
 	public int getX() {
 		return x;
 	}
 	
+	/** Retourne la composante y du point */
 	public int getY() {
 		return y;
 	}
 	
+	/** Set la composante x du point */
 	public void setX(int x) {
 		this.x = x;
 	}
 	
+	/** Set la composante y du point */
 	public void setY(int y) {
 		this.y = y;
+	}
+	
+	/** Retourne la distance a l'origine */
+	public double getModule() {
+		return Math.sqrt(getX()*getX() + getY()*getY());
 	}
 	
 	public String toString() {
 		return "(" + getX() + ", " + getY() + ")";
 	}
 	
+	/** Translate le point */
 	public void translation(int dx, int dy) {
 		setX(getX() + dx);
 		setY(getY() + dy);
@@ -52,6 +62,7 @@ public class Point2D {
 		setY((int) ((x1 * -sin) + (y1 * cos)));
 	}
 	
+	/** Retourne la distance entre deux points */
 	public static double distance(Point2D p1, Point2D p2) {
 		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) + (p1.getY()-p2.getY())*(p1.getY()-p2.getY()));
 	}

@@ -1,7 +1,7 @@
 package math;
 
 public class Vec4 {
-
+	
 	private double[] matrix;
 	
 	/** Constructeur */
