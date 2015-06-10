@@ -2,42 +2,41 @@ package math;
 
 public class Point2D {
 	
-	private Matrix matrix;
+	private int x, y;
 	
-	public Point2D(double x, double y) {
-		matrix = new Matrix(2, 1);
-		setX(x);
-		setY(y);
+	/** Constructeur */
+	public Point2D() {
+		this.x = 0;
+		this.y = 0;
 	}
 	
-	public double getX() {
-		return matrix.get(0, 0);
+	/** Constructeur */
+	public Point2D(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 	
-	public double getY() {
-		return matrix.get(1, 0);
+	public int getX() {
+		return x;
 	}
 	
-	public void setX(double x) {
-		matrix.set(0, 0, x);
+	public int getY() {
+		return y;
 	}
 	
-	public void setY(double y) {
-		matrix.set(1, 0, y);
+	public void setX(int x) {
+		this.x = x;
 	}
 	
-	public Matrix getMatrix() {
-		return new Matrix(new double[][] {
-				{getX()},
-				{getY()}
-		});
+	public void setY(int y) {
+		this.y = y;
 	}
 	
 	public String toString() {
 		return "(" + getX() + ", " + getY() + ")";
 	}
 	
-	public void translation(double dx, double dy) {
+	public void translation(int dx, int dy) {
 		setX(getX() + dx);
 		setY(getY() + dy);
 	}
@@ -45,16 +44,21 @@ public class Point2D {
 	/** Rotation d'un point autour d'un axe et avec un angle donnée */
 	public void rotationAxe(Point2D point, int degre) {
 		double radian = ((double) degre / 180.0) * Math.PI;
-		double x = getX();
-		double y = getY();
+		int x1 = getX();
+		int y1 = getY();
 		double cos = Math.cos(radian);
 		double sin = Math.sin(radian);
-		setX((x * cos) + (y * sin));
-		setY((x * -sin) + (y * cos));
+		setX((int) ((x1 * cos) + (y1 * sin)));
+		setY((int) ((x1 * -sin) + (y1 * cos)));
 	}
 	
 	public static double distance(Point2D p1, Point2D p2) {
 		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) + (p1.getY()-p2.getY())*(p1.getY()-p2.getY()));
+	}
+	
+	/** Retourne vrai si le point C est a droite de AB */
+	public static boolean oriented2d(Point2D a, Point2D b, Point2D c) {
+	    return ( ((b.getX()-a.getX())*(c.getY()-a.getY()) - (b.getY()-a.getY())*(c.getX()-a.getX())) >= 0 );
 	}
 	
 }

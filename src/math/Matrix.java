@@ -183,7 +183,7 @@ public class Matrix {
 	}
 	
 	/** Retourne la mutliplication de la matrice par m */
-	public void mult(Matrix m) {
+	public Matrix mult(Matrix m) {
 		if (getColumnDimension() != m.getLineDimension()) {
 			throw new ArithmeticException("Dimension matrice non conforme");
 		}
@@ -199,7 +199,7 @@ public class Matrix {
 				}
 			}
 		}
-		matrix = res;
+		return new Matrix(res);
 	}
 	
 	/** Retourne la matrice transposée */

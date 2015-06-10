@@ -4,6 +4,13 @@ public class Point3D {
 	
 	private Matrix matrix;
 	
+	public Point3D() {
+		matrix = new Matrix(3, 1);
+		setX(0);
+		setY(0);
+		setZ(0);
+	}
+	
 	public Point3D(double x, double y, double z) {
 		matrix = new Matrix(3, 1);
 		setX(x);
@@ -15,14 +22,17 @@ public class Point3D {
 		return new Point3D(getX(), getY(), getZ());
 	}
 	
+	/** Retourne la composante x du point */
 	public double getX() {
 		return matrix.get(0, 0);
 	}
 	
+	/** Retourne la composante y du point */
 	public double getY() {
 		return matrix.get(1, 0);
 	}
 	
+	/** Retourne la composante z du point */
 	public double getZ() {
 		return matrix.get(2, 0);
 	}
@@ -66,7 +76,7 @@ public class Point3D {
 		translation(t.getDx(), t.getDy(), t.getDz());
 	}
 	
-	/** Rotation d'un point autour d'un axe et avec un angle donnée */
+	/** Rotation d'un point autour d'un axe et avec un angle donnee */
 	public void rotationAxe(Vecteur3D axe, int degre) {
 		double radian = ((double) degre / 180.0) * Math.PI;
 		double x = getX();
@@ -87,9 +97,8 @@ public class Point3D {
 	}
 	
 	public static double distance(Point3D p1, Point3D p2) {
-		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) +
-				(p1.getY()-p2.getY())*(p1.getY()-p2.getY()) +
-				(p1.getZ()-p2.getZ())*(p1.getZ()-p2.getZ()));
+		Vecteur3D vect = new Vecteur3D(p1, p2);
+		return vect.getNorme();
 	}
 	
 	public static boolean distinct(Point3D p1, Point3D p2) {
@@ -97,8 +106,8 @@ public class Point3D {
 	}
 	
 	public static boolean aligner(Point3D p1, Point3D p2, Point3D p3) {
-		Vecteur3D vect1 = new Vecteur3D(p2.getX()-p1.getX(), p2.getY()-p1.getY(), p2.getZ()-p1.getZ());
-		Vecteur3D vect2 = new Vecteur3D(p3.getX()-p1.getX(), p3.getY()-p1.getY(), p3.getZ()-p1.getZ());
+		Vecteur3D vect1 = new Vecteur3D(p1, p2);
+		Vecteur3D vect2 = new Vecteur3D(p1, p3);
 		return Vecteur3D.colineaire(vect1, vect2);
 	}
 }

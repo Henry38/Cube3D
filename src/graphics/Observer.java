@@ -1,67 +1,70 @@
 package graphics;
 
-import geometry.Plan3D;
-import geometry.Polygon3D;
+import geometry.Light;
 import geometry.Shape3D;
+import geometry.Triangle;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 import math.*;
+import world3d.Camera;
 import world3d.World3D;
 
 public class Observer extends JComponent implements MouseMotionListener, MouseListener, MouseWheelListener {
 	
 	private static final long serialVersionUID = 1L;
-	private Base2D baseGraphic;
-	private Vecteur2D oi, oj;
 	
 	private World3D world;
-	private Point3D pointObserver, center;
-	private Base3D repereObserver;
-	private Vecteur3D direction;
-	private double teta, phi;
+	private Camera camera;
+	private Viewport viewport;
 	
-	private double scale, d;
+	Mat4 modelMat, viewMat, projMat;
+	Light light;
+	
+	private BufferedImage image, texture;
+	private WritableRaster raster;
+	
+	private int[] colorBuffer;
+	private double[] zBuffer;
+	
+	private Color color;
+	private int viewportWidth, viewportHeight;
 	private int posX, posY, decalX, decalY;
 	private int eventButton;
 	
-	private Plan3D planObserver;
-	
 	/** Constructeur */
-	public Observer(World3D world, Point3D pointObserver, Point3D center, int width, int height) {
+	public Observer(World3D world, Camera camera, int width, int height) {
+		super();
 		this.world = world;
-		this.repereObserver = new Base3D(pointObserver);
-		this.pointObserver = pointObserver;
-		this.center = center;
-		this.direction = new Vecteur3D(0, 0, 0);
+		this.camera = camera;
+		this.viewport = new Viewport(0, 0, width, height);
+		this.viewportWidth = width;
+		this.viewportHeight = height;
 		
-		getRepereObserver();
+		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		this.texture = null;
+		this.raster = image.getRaster();
 		
-		this.scale = 40.0;
-		this.oi = new Vecteur2D(1*scale, 0);
-		this.oj = new Vecteur2D(0, 1*scale);
-		this.baseGraphic = new Base2D(new Point2D(width/2, height/2), oi, oj);
+		this.colorBuffer = new int[width * height * 3];
+		this.zBuffer = new double[width * height];
 		
-		int teta2 = 45;
-		double rad = (teta2 / 180.0) * Math.PI;
-		d = 4 / Math.tan(rad);
-		this.planObserver = new Plan3D(0, 0, 1, 0);
+		this.color = new Color(0, 0, 0);
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -70,312 +73,476 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		setPreferredSize(new Dimension(width, height));
 	}
 	
-	/** Positionne la caméra dans le repère World */
-	public void placeCamera(int x, int y, int z) {
-		pointObserver.setX(x);
-		pointObserver.setY(y);
-		pointObserver.setZ(z);
+	public int getColor(int r, int g, int b) {
+		return (r << 16) | (g << 8) | b;
 	}
 	
-	/** Défini le point du monde  à regarder */
-	public void lookAt(int x, int y, int z) {
-		center.setX(x);
-		center.setY(y);
-		center.setZ(z);
-	}
-	
-	/** Calcul le repere Observer associé au pointObserver et au center */
-	private void getRepereObserver() {
-		
-		direction.setDx(center.getX()-pointObserver.getX());
-		direction.setDy(center.getY()-pointObserver.getY());
-		direction.setDz(center.getZ()-pointObserver.getZ());
-		
-		phi = Math.acos(direction.getDz() / direction.getNorme());
-		teta = Math.acos(direction.getDx() / (direction.getNorme()*Math.sin(phi)));
-		if (direction.getDy() < 0) {
-			teta *= -1;
-		}
-		
-		repereObserver.oi.setDx(1);
-		repereObserver.oi.setDy(0);
-		repereObserver.oi.setDz(0);
-		
-		repereObserver.oj.setDx(0);
-		repereObserver.oj.setDy(1);
-		repereObserver.oj.setDz(0);
-		
-		repereObserver.ok.setDx(0);
-		repereObserver.ok.setDy(0);
-		repereObserver.ok.setDz(1);
-		
-		repereObserver.rotationOz(teta - Math.PI/2);
-		repereObserver.rotationOx(-phi);
-	}
-	
-	/** Retourne le point 3D exprimé dans la base Observer défini depuis le repère World */
-	private Point3D getPoint3DFromWorldToObserver(Point3D point) {
-		return  repereObserver.getPoint3DFromBase(point, world.getBase());
-	}
-	
-	/** Retourne le point 3D exprimé dans la base world défini depuis le repère Observer */
-	private Point3D getPoint3DFromObserverToWorld(Point3D point) {
-		return world.getBase().getPoint3DFromBase(point, repereObserver);
-	}
-	
-	/** Retourne le point 2D exprimé dans la base Graphic défini depuis le repère Observer */
-	private Point2D getProjectivePoint2DFromObserver(Point3D point) {
-		// Projection parallèle
-		//return new Point2D(point.getX(), point.getY());
-		// Projection en perspective
-		//System.out.println(point.getX()*d/point.getZ());
-		return new Point2D(point.getX()*d/point.getZ(), point.getY()*d/point.getZ());
-	}
-	
-	/** Retourne le point 3D exprimé dans la base Observer défini depuis le repère Graphic */
-	private Point3D getProjectivePoint3DFromGraphic(Point2D point, double z) {
-		return new Point3D(point.getX()*z/d, point.getY()*z/d, z);
-	}
-	
-	private boolean isPoint3DFromWorldVisible(Point3D point) {
-		Point3D p = getPoint3DFromWorldToObserver(point);
-		if (p.getZ() <= 0) {
-			return false;
-		}
-		Point2D proj_p = getProjectivePoint2DFromObserver(p);
-		int x = (int) (baseGraphic.getOrigine().getX() + proj_p.getX()*oi.getDx());
-		int y = (int) (baseGraphic.getOrigine().getY() + proj_p.getY()*oj.getDy());
-		return (x >= 0 && x <= getWidth() && y >= 0 && y <= getHeight());
-	}
-	
-	
-	
-	// Dessin
-	//Color[] colors = {Color.CYAN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.ORANGE};
+	/** Calcul le rendu du monde depuis la camera */
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.fillRect(0, 0, getWidth(), getHeight());
 		
-		// Ligne d'horizon
-		/*
-		Point3D p = getPoint3DFromWorldToObserver(new Point3D(Integer.MIN_VALUE,  0,  0));
-		Point2D proj_p = getProjectivePoint2DFromObserver(p);
-		int py = (int) baseGraphic.getOrigine().getY() + (int) (proj_p.getX()*oi.getDy() + proj_p.getY()*oj.getDy());
-		g.setColor(Color.lightGray);
-		g.drawLine(0, py, getWidth(), py);
+		for (int i = 0; i < colorBuffer.length; i++) {
+			colorBuffer[i] = 0;
+		}
+		for (int i = 0; i < zBuffer.length; i++) {
+			zBuffer[i] = 1.0;
+		}
 		
-		Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Paint gradientPaint = new GradientPaint(0, 0, new Color(15, 157, 232), 0, py, Color.white);
-        
-        // Ciel
-        g2d.setPaint(gradientPaint);
-        g2d.fillPolygon(new int[] {0, getWidth(), getWidth(), 0}, new int[] {0, 0, py, py}, 4);
-        
-        // Sol
-        g2d.setColor(new Color(31, 160, 85));
-        g2d.fillPolygon(new int[] {0, getWidth(), getWidth(), 0}, new int[] {py, py, getHeight(), getHeight()}, 4);
-        */
-		
-		// Dessine toutes les objets du monde
-		Collections.sort(world.getlistShape(), new Comparator<Shape3D>() {
-			public int compare(Shape3D shp1, Shape3D shp2) {
-				Point3D p1, p2, tmp;
-				tmp = world.getBase().getPoint3DFromBase(shp1.getBarycentre(), shp1.getBase());
-				p1 = getPoint3DFromWorldToObserver(tmp);
-				tmp = world.getBase().getPoint3DFromBase(shp2.getBarycentre(), shp2.getBase());
-				p2 = getPoint3DFromWorldToObserver(tmp);
-				
-				return (int) (p2.getZ() - p1.getZ());
-			}
-		});
+		viewMat = camera.getViewMat();
+		projMat = camera.getProjMat();
+		light = world.getLight();
 		
 		for (Shape3D shape : world.getlistShape()) {
-			fillShape3D(g, shape);
+			drawShape3D(shape);
 		}
 		
-		drawRepere(g, world.getBase());
-		//drawCenter(g);
-		drawCursor(g);
+		//drawRepere(world.getBase());
+		
+		//Draw center
+		color = Color.cyan;
+		Point3D center = camera.getObserver();
+		drawLine3D(new Point3D(0, 0, 0), new Point3D(center.getX(), 0, 0));
+		drawLine3D(new Point3D(center.getX(), 0, 0), new Point3D(center.getX(), center.getY(), 0));
+		drawLine3D(new Point3D(center.getX(), center.getY(), 0), new Point3D(center.getX(), center.getY(), center.getZ()));
+		
+		raster.setPixels(0, 0, viewportWidth, viewportHeight, colorBuffer);
+		g.drawImage(image, 0, 0, null);
+		
+		// Draw cursor
+		g.setColor(Color.magenta);
+		g.drawLine(viewportWidth/2-4, viewportHeight/2, viewportWidth/2+4, viewportHeight/2);
+		g.drawLine(viewportWidth/2, viewportHeight/2-4, viewportWidth/2, viewportHeight/2+4);
 	}
 	
-	/** Dessine un point défini dans le repère World */
+	
+	
+	/** Retourne l'aire du triangle */
+	private double areaTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+	    return Math.abs((x2-x1)*(y3-y1) - (x3-x1)*(y2-y1));
+	}
+	
+	/** Trace la ligne definie entre deux points du repere monde */
+	public LinkedList<Point2D> Bresenham2D(int x1, int y1, int x2, int y2) {
+		LinkedList<Point2D> res = new LinkedList<Point2D>();
+		int[] point = new int[] {x1, y1};
+		
+	    int dx = x2 - x1;
+	    int dy = y2 - y1;
+	    int x_inc = (dx < 0 ? -1 : 1);
+	    int y_inc = (dy < 0 ? -1 : 1);
+	    int abs_dx = Math.abs(dx);
+	    int abs_dy = Math.abs(dy);
+	    
+	    // Multiplication par 2
+	    int dx2 = abs_dx << 1;
+	    int dy2 = abs_dy << 1;
+	    
+	    if (abs_dx >= abs_dy) {
+	        int err = -abs_dx;
+	        // Iteration sur x
+	        for (int i = 0; i <= abs_dx; ++i) {
+	        	res.add(new Point2D(point[0], point[1]));
+	            err += dy2;
+	            if (err > 0) {
+	                point[1] += y_inc;
+	                err -= dx2;
+	            }
+	            point[0] += x_inc;
+	        }
+	    } else {
+	        int err = -abs_dy;
+	        // Iteration sur y
+	        for (int i = 0; i <= abs_dy; ++i) {
+	        	res.add(new Point2D(point[0], point[1]));
+	            err += dx2;
+	            if (err > 0) {
+	                point[0] += x_inc;
+	                err -= dy2;
+	            }
+	            point[1] += y_inc;
+	        }
+	    }
+	    
+	    return res;
+	}
+	
+	/** Calcul le bord gauche strict de la ligne */
+	public LinkedList<Point2D> leftEdgeScan(int x1, int y1, int x2, int y2, boolean b) {
+		LinkedList<Point2D> res = new LinkedList<Point2D>();
+		
+	    int[] point = new int[] {x1, y1};
+	    
+	    int dx = x2 - x1;
+	    int dy = y2 - y1;
+	    int x_inc = (dx < 0 ? -1 : 1);
+	    int y_inc = (dy < 0 ? -1 : 1);
+	    int abs_dx = Math.abs(dx);
+	    int abs_dy = Math.abs(dy);
+	    
+	    if (dx == 0 && dy == 0) {
+	        // Remplissage d'un point
+	        res.add(new Point2D(point[0], point[1]));
+	        return res;
+	    }
+	    if (dx == 0) {
+	        // Remplissage d'une ligne verticale
+	        for (int i = 0; i <= abs_dy; ++i) {
+	            res.add(new Point2D(point[0], point[1]));
+	            point[1] += y_inc;
+	        }
+	        return res;
+	    } else if (dy == 0)  {
+	        // Remplissage d'une ligne horizontale
+	        for (int i = 0; i <= abs_dx; ++i) {
+	            res.add(new Point2D(point[0], point[1]));
+	            point[0] += x_inc;
+	        }
+	        return res;
+	    }
+	    
+	    if (abs_dx >= abs_dy) {
+	        int numerator = abs_dy;
+	        int denominator = abs_dx;
+	        int increment = denominator - numerator;
+            // Iteration sur x
+            for (int i = 0; i <= abs_dx; ++i) {
+                increment += numerator;
+                if (increment >= denominator) {
+                    res.add(new Point2D(point[0], point[1]));
+                    point[1] += y_inc;
+                    increment -= denominator;
+                }
+                point[0] += x_inc;
+            }
+	        
+	    } else if (abs_dx < abs_dy) {
+	        int numerator = abs_dx;
+	        int denominator = abs_dy;
+	        int increment = denominator - numerator;
+	        // Iteration sur y
+            for (int i = 0; i <= abs_dy; ++i) {
+                increment += numerator;
+                if (increment > denominator) {
+                    point[0] += x_inc;
+                    increment -= denominator;
+                }
+                res.add(new Point2D(point[0], point[1]));
+                point[1] += y_inc;
+            }
+	    }
+	    
+	    return res;
+	}
+	
+	
+	private Hash getHash(Point2D p1, Point2D p2, Point2D p3, boolean b1, boolean b2, boolean b3) {
+		int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
+		int maxY = Math.max(p1.getY(), Math.max(p2.getY(), p3.getY()));
+		Hash hash = new Hash(minY, maxY);
+		
+	    LinkedList<Point2D> lineP1P2 = leftEdgeScan(p1.getX(), p1.getY(), p2.getX(), p2.getY(), b1);
+	    LinkedList<Point2D> lineP2P3 = leftEdgeScan(p2.getX(), p2.getY(), p3.getX(), p3.getY(), b2);
+	    LinkedList<Point2D> lineP3P1 = leftEdgeScan(p3.getX(), p3.getY(), p1.getX(), p1.getY(), b3);
+	    
+	    if ((b1 && b2) || (!b1 && !b2)) {
+	    	lineP1P2.pollLast();
+	    }
+	    for (Point2D p : lineP1P2) {
+	    	hash.put(p.getY(), p.getX());
+	    }
+	    if ((b2 && b3) || (!b2 && !b3)) {
+	    	lineP2P3.pollLast();
+	    }
+	    for (Point2D p : lineP2P3) {
+	    	hash.put(p.getY(), p.getX());
+	    }
+	    if ((b1 && b3) || (!b1 && !b3)) {
+	    	lineP3P1.pollLast();
+	    }
+	    for (Point2D p : lineP3P1) {
+	    	hash.put(p.getY(), p.getX());
+	    }
+		
+		return hash;
+	}
+	
+	private Vec4 getProjectivePoint3D(Point3D point) {
+		Vec4 p = new Vec4(point);
+		return projMat.mult(viewMat.mult(modelMat.mult(p)));
+	}
+	
+	private boolean onViewVolume(Vec4 point) {
+		double w = point.getW();
+		return (point.getX() > -w && point.getX() < w && point.getY() > -w && point.getY() < w && point.getZ() > -w && point.getZ() < w);
+	}
+	
+	/** Retourne la projection ecran du point definit dans le repere World */
+	private Point3D getWindowScreenPoint3D(Vec4 point) {
+		Point3D p = point.normalized();
+		int x = (int) ((viewportWidth/2.0) * (p.getX()) + viewport.getX() + (viewportWidth/2.0));
+		int y = (int) ((viewportHeight/2.0) * (p.getY()) + viewport.getY() + (viewportHeight/2.0));
+		int z = (int) (((camera.getZFar()-camera.getZNear())/2.0)*p.getZ() + ((camera.getZFar()+camera.getZNear())/2.0));
+		return new Point3D(x, y, z);
+	}
+	
+	
+	
+	/** Dessine un point defini dans le repere World */
 	private void drawPoint3D(Graphics g, Point3D point) {
-		Point3D p = getPoint3DFromWorldToObserver(point);
+		Vec4 proj_p = getProjectivePoint3D(point);
+		Point3D p = getWindowScreenPoint3D(proj_p);
+		int x = (int) p.getX();
+		int y = (int) p.getY();
 		
-		if (isPoint3DFromWorldVisible(point)) {
-			Point2D proj_p = getProjectivePoint2DFromObserver(p);
-			int x = (int) (baseGraphic.getOrigine().getX() + proj_p.getX()*oi.getDx());
-			int y = (int) (baseGraphic.getOrigine().getY() + proj_p.getY()*oj.getDy());
-			
-			try {
-				Image img = ImageIO.read(new File("image/point.png"));
-				g.drawImage(img, x - 4, y - 4, this);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
+		int index;
+		if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+			index = ((y * viewportWidth) + x) * 3;
+			colorBuffer[index + 0] = color.getRed();
+			colorBuffer[index + 1] = color.getGreen();
+			colorBuffer[index + 2] = color.getBlue();
 		}
 	}
 	
-	/** Dessine une droite entre deux points définis dans le repère World */
-	private void drawLine3D(Graphics g, Point3D point1, Point3D point2) {
-		Point3D p1 = getPoint3DFromWorldToObserver(point1);
-		Point3D p2 = getPoint3DFromWorldToObserver(point2);
-		Point3D tmp;
-		Point2D proj_p1 = null;
-		Point2D proj_p2 = null;
+	/** Dessine une droite entre deux points du repere World */
+	private void drawLine3D(Point3D point1, Point3D point2) {
+		modelMat = new Mat4();
+		Vec4 proj_p1 = getProjectivePoint3D(point1);
+		Vec4 proj_p2 = getProjectivePoint3D(point2);
 		
-		if (planObserver.isPoint3DSideToSide(p1, p2)) {
-			tmp = planObserver.getIntersectionWithSegment3D(p1, p2);
-			tmp.setZ(0.001);
+		// Si la ligne en entierement dans le volume regarde
+		if (onViewVolume(proj_p1) && onViewVolume(proj_p2)) {
+			Point3D screenP1 = getWindowScreenPoint3D(proj_p1);
+			Point3D screenP2 = getWindowScreenPoint3D(proj_p2);
 			
-			if (p1.getZ() > 0) {
-				proj_p1 = getProjectivePoint2DFromObserver(p1);
-				proj_p2 = getProjectivePoint2DFromObserver(tmp);
-			} else if (p2.getZ() > 0) {
-				proj_p1 = getProjectivePoint2DFromObserver(tmp);
-				proj_p2 = getProjectivePoint2DFromObserver(p2);
+			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
+			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
+			
+			int x, y, index;
+			for (Point2D p : Bresenham2D(p1.getX(), p1.getY(), p2.getX(), p2.getY())) {
+				x = p.getX();
+				y = p.getY();
+				if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+					index = ((y * viewportWidth) + x) * 3;
+					
+					colorBuffer[index + 0] = color.getRed();
+					colorBuffer[index + 1] = color.getGreen();
+					colorBuffer[index + 2] = color.getBlue();
+				}
 			}
-			
-		} else if (p1.getZ() > 0) {
-			proj_p1 = getProjectivePoint2DFromObserver(p1);
-			proj_p2 = getProjectivePoint2DFromObserver(p2);
-		}
-		
-		if (proj_p1 != null && proj_p2 != null) {
-			int x1 = (int) (baseGraphic.getOrigine().getX() + proj_p1.getX()*oi.getDx());
-			int y1 = (int) (baseGraphic.getOrigine().getY() + proj_p1.getY()*oj.getDy());
-			int x2 = (int) (baseGraphic.getOrigine().getX() + proj_p2.getX()*oi.getDx());
-			int y2 = (int) (baseGraphic.getOrigine().getY() + proj_p2.getY()*oj.getDy());
-			
-			g.drawLine(x1, y1, x2, y2);
 		}
 	}
 	
-	/** Dessine le polygone défini dans le repère passé en paramètre */
-	private void drawPolygon3D(Graphics g, Polygon3D polygon, Base3D base) {
-		Point3D p1, p2;
-		for (int i=0; i<polygon.nbPoints(); i++) {
-			p1 = world.getBase().getPoint3DFromBase(polygon.get(i), base);
-			if (i == polygon.nbPoints()-1) {
-				p2 = world.getBase().getPoint3DFromBase(polygon.get(0), base);
+	private void drawEdgeTriangle(Triangle triangle) {
+		drawLine3D(triangle.getP1(), triangle.getP2());
+		drawLine3D(triangle.getP2(), triangle.getP3());
+		drawLine3D(triangle.getP3(), triangle.getP1());
+	}
+	
+	/** Dessine le triangle definis par trois points du repere World */
+	private void drawTriangle(Triangle triangle) {
+		Vec4 proj_p1 = getProjectivePoint3D(triangle.getP1());
+		Vec4 proj_p2 = getProjectivePoint3D(triangle.getP2());
+		Vec4 proj_p3 = getProjectivePoint3D(triangle.getP3());
+		
+		// Si le triangle est entierement dans le volume regarde
+		if (onViewVolume(proj_p1) && onViewVolume(proj_p2) && onViewVolume(proj_p3)) {
+			
+			Point3D ndcP1 = proj_p1.normalized();	// Normalized coordonnees
+			Point3D ndcP2 = proj_p2.normalized();
+			Point3D ndcP3 = proj_p3.normalized();
+			
+			Point3D screenP1 = getWindowScreenPoint3D(proj_p1);
+			Point3D screenP2 = getWindowScreenPoint3D(proj_p2);
+			Point3D screenP3 = getWindowScreenPoint3D(proj_p3);
+			
+			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
+			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
+			Point2D p3 = new Point2D((int)screenP3.getX(), (int)screenP3.getY());
+			
+			Hash hash;
+			if (Point2D.oriented2d(p1, p2, p3)) {
+				boolean b1 = (p3.getY() - p1.getY() > 0);
+				boolean b2 = (p2.getY() - p3.getY() > 0);
+				boolean b3 = (p1.getY() - p2.getY() > 0);
+				hash = getHash(p1, p3, p2, b1, b2, b3);
 			} else {
-				p2 = world.getBase().getPoint3DFromBase(polygon.get(i+1), base);
+				boolean b1 = (p2.getY() - p1.getY() > 0);
+				boolean b2 = (p3.getY() - p2.getY() > 0);
+				boolean b3 = (p1.getY() - p3.getY() > 0);
+				hash = getHash(p1, p2, p3, b1, b2, b3);
 			}
-			g.setColor(polygon.getColor());
-			drawLine3D(g, p1, p2);
-		}
-	}
-	
-	/** Rempli le polygon défini dans le repère passé en paramètre */ 
-	private void fillPolygon3D(Graphics g, Polygon3D polygon, Base3D base) {
-		Polygon polygon2D = new Polygon();
-		Vecteur3D vision = new Vecteur3D(0, 0, 0);
-		Point3D po = base.getPoint3DFromBase(pointObserver, world.getBase());
-		Point3D p;
-		Point2D proj_p;
-		int x, y;
-		
-		vision.setDx(polygon.get(0).getX()-po.getX());
-		vision.setDy(polygon.get(0).getY()-po.getY());
-		vision.setDz(polygon.get(0).getZ()-po.getZ());
-		
-		if (polygon.getNormale() == null || Vecteur3D.produit_scalaire(vision, polygon.getNormale()) < 0) {
-			polygon2D.reset();
-			for (Point3D point : polygon.getListPoint()) {
-				point = world.getBase().getPoint3DFromBase(point, base);
-				p = getPoint3DFromWorldToObserver(point);
-				proj_p = getProjectivePoint2DFromObserver(p);
-				x = (int) (baseGraphic.getOrigine().getX() + proj_p.getX()*oi.getDx());
-				y = (int) (baseGraphic.getOrigine().getY() + proj_p.getY()*oj.getDy());
-				polygon2D.addPoint(x, y);
+			
+			Coord[] listCoord = triangle.getListCoord();
+			int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
+			int dx, abs_dx, x_inc, index;
+			int x, y;
+			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
+			double area1, area2, area3, d, h, z;
+			double coefLight;
+			Color col;
+			
+			coefLight = Vecteur3D.produit_scalaire(triangle.getNormale(), light.getDirection());
+			if (coefLight < 0) {
+				int r = (int) (200 * Math.min(-coefLight, 1.0));
+				col = new Color(r, 0, 0);
+			} else {
+				int r = (int) (80 * coefLight);
+				col = new Color(r, 0, 0);
 			}
-			g.setColor(polygon.getColor());
-			g.fillPolygon(polygon2D);
+			
+			ArrayList<Cell> arrayCell = hash.getArray();
+			for (int k = 0; k < arrayCell.size(); k++) {
+				x = arrayCell.get(k).x1;
+				y = minY + k;
+				dx = arrayCell.get(k).x2 - arrayCell.get(k).x1;
+				abs_dx = Math.abs(dx);
+				x_inc = (dx > 0 ? 1 : -1);
+				for (int i = 0; i <= abs_dx; i++) {
+					if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+		    			index = ((y * viewportWidth) + x) * 3;
+		    			
+		    			area1 = areaTriangle(p2.getX(), p2.getY(), p3.getX(), p3.getY(), x, y);
+		    			area2 = areaTriangle(p1.getX(), p1.getY(), p3.getX(), p3.getY(), x, y);
+		    			area3 = areaTriangle(p1.getX(), p1.getY(), p2.getX(), p2.getY(), x, y);
+		    			d = area1 + area2 + area3;
+		    			
+		    			h = 0;
+		    			h += (area1 / d) * (1.0 / proj_p1.getW());	// 1 / w
+		    			h += (area2 / d) * (1.0 / proj_p2.getW());
+		    			h += (area3 / d) * (1.0 / proj_p3.getW());
+		    			
+		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());
+		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
+		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
+		    			
+//		    			u1 = (area1 / d) * (listCoord[0].getX() / proj_p1.getW());	// u / w
+//		    			v1 = (area1 / d) * (listCoord[0].getY() / proj_p1.getW());	// v / w
+//		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());		// z
+//		    			
+//		    			u2 = (area2 / d) * (listCoord[1].getX() / proj_p2.getW());
+//		    			v2 = (area2 / d) * (listCoord[1].getY() / proj_p2.getW());
+//		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
+//		    			
+//		    			u3 = (area3 / d) * (listCoord[2].getX() / proj_p3.getW());
+//		    			v3 = (area3 / d) * (listCoord[2].getY() / proj_p3.getW());
+//		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
+		    			
+		    			//col = color;
+		    			z = (z1 + z2 + z3) / h;
+		    			
+		    			if (z < zBuffer[(y * viewportWidth) + x]) {
+		    				zBuffer[(y * viewportWidth) + x] = z;
+		    				
+//		    				if (coefLight < 0) {
+//		    				} else {
+//		    					r = (int) (col.getRed() - coefLight);
+//		    					g = (int) (col.getGreen() - coefLight);
+//		    					b = (int) (col.getBlue() - coefLight);
+//		    				}
+		    				
+		    				//col = new Color(texture.getRGB((int)(((u1+u2+u3)/h)*255), (int)(((v1+v2+v3)/h)*255)));
+		    				colorBuffer[index + 0] = col.getRed();
+		    				colorBuffer[index + 1] = col.getGreen();
+		    				colorBuffer[index + 2] = col.getBlue();
+		    			}
+					}
+					x += x_inc;
+				}
+			}
 		}
 	}
 	
-	/** Dessine les arêtes de la Shape3D définie dans le repère World */
-	private void drawShape3D(Graphics g, Shape3D shape) {
-		for (Polygon3D polygon : shape.getListPolygon3D()) {
-			drawPolygon3D(g, polygon, shape.getBase());
+	/** Dessine les arêtes de la Shape3D definie dans le repere World */
+	private void drawShape3D(Shape3D shape) {
+		modelMat = shape.getModelMat();
+		try {
+			texture = ImageIO.read(new File(shape.getPath()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			texture = null;
 		}
-	}
-	
-	/** Dessine les faces de la Shape3D définie dans le repère World */
-	private void fillShape3D(Graphics g, Shape3D shape) {
-		for (Polygon3D polygon : shape.getListPolygon3D()) {
-			fillPolygon3D(g, polygon, shape.getBase());
-		}
-	}
-	
-	/** Dessine la base définie dans le repère World */
-	private void drawRepere(Graphics g, Base3D base) {
-		Point3D o, p;//, p1;
 		
-		o = base.getOrigine();
+		for (Triangle triangle : shape.getListTriangle()) {
+			// Back face culling
+			System.out.println("a");
+			if (triangle.isVisible(modelMat, camera.getOrigine())) {
+				color = triangle.getColor();
+				//drawEdgeTriangle(triangle);
+				drawTriangle(triangle);
+			}
+		}
+	}
+	
+	/** Dessine la base definie dans le repere World */
+	private void drawRepere(Base3D base) {
+		Point3D origin = base.getOrigine();
+		Point3D p = new Point3D();
+		
 		for (Vecteur3D vect : base.getVecteurs()) {
 			if (vect == base.oi) {
-				g.setColor(new Color(255, 0, 0));
+				color = new Color(255, 0, 0);
 				//p1 = new Point3D(Integer.MAX_VALUE, 0, 0);
 			} else if (vect == base.oj) {
-				g.setColor(new Color(0, 255, 0));
+				color = new Color(0, 255, 0);
 				//p1 = new Point3D(0, Integer.MAX_VALUE, 0);
 			} else {// if (vect == base.ok) {
-				g.setColor(new Color(0, 0, 255));
+				color = new Color(0, 0, 255);
 				//p1 = new Point3D(0, 0, Integer.MAX_VALUE);
 			}
 			
-			p = o.clone();
+			p.setX(origin.getX());
+			p.setY(origin.getY());
+			p.setZ(origin.getZ());
 			p.translation(vect);
-			drawLine3D(g, o, p);
+			drawLine3D(origin, p);
 		}
 	}
 	
-	/** Dessine le chemin de l'origine jusqu'au point regardé */
-	private void drawCenter(Graphics g) {
-		g.setColor(Color.cyan);
-		drawLine3D(g, new Point3D(0, 0, 0), new Point3D(center.getX(), 0, 0));
-		drawLine3D(g, new Point3D(center.getX(), 0, 0), new Point3D(center.getX(), center.getY(), 0));
-		drawLine3D(g, new Point3D(center.getX(), center.getY(), 0), new Point3D(center.getX(), center.getY(), center.getZ()));
+	
+	
+	// Mouvement de la camera
+	/** Translate la camera sur le plan d'affichage */
+	public void moveTranslation(double dx, double dy) {
+		Base3D base = camera.getBase();
+		Vecteur3D t = new Vecteur3D(dx, dy, 0);
+		Vecteur3D u = base.oi;
+		Vecteur3D v = base.oj;
+		Vecteur3D k = base.ok;
+		double dx2 = u.getDx()*t.getDx() + v.getDx()*t.getDy() + k.getDx()*t.getDz();
+		double dy2 = u.getDy()*t.getDx() + v.getDy()*t.getDy() + k.getDy()*t.getDz();
+		double dz2 = u.getDz()*t.getDx() + v.getDz()*t.getDy() + k.getDz()*t.getDz();
+		camera.translation(dx2, dy2, dz2);
 	}
 	
-	/** Dessine le curseur du centre de la caméra */
-	private void drawCursor(Graphics g) {
-		int x = (int) baseGraphic.getOrigine().getX();
-		int y = (int) baseGraphic.getOrigine().getY();
-		g.setColor(Color.magenta);
-		g.drawLine(x-4, y, x+4, y);
-		g.drawLine(x, y-4, x, y+4);
-	}
-	
-	
-	
-	
-	// Mouvement de la caméra
-	/** Translate la caméra sur le plan d'affichage */
-	public void moveTranslation(int dx, int dy) {
-		Point3D p3d = getPoint3DFromObserverToWorld(new Point3D(dx/(8*scale), dy/(8*scale), 0));
-		Matrix m = world.getBase().getMatrixTranslation(repereObserver);
-		p3d.translation(-m.get(0, 0), -m.get(1, 0), -m.get(2, 0));
-		
-		pointObserver.translation(p3d.getX(), p3d.getY(), p3d.getZ());
-		center.translation(p3d.getX(), p3d.getY(), p3d.getZ());
-	}
-	
-	/** Tourne autour du point regardé */
-	public void moveRotation(int dx, int dy) {
-		// Point3D de rotation
-		Point3D p = pointObserver.clone();
-		p.translation(repereObserver.ok);
-		p.translation(repereObserver.ok);
+	/** Fait avancer la camera dans la direction de la vue */
+	public void moveForward(int step) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
 		
 		// Direction
 		Vecteur3D vect = new Vecteur3D(0, 0, 0);
-		vect.setDx(pointObserver.getX() - p.getX());
-		vect.setDy(pointObserver.getY() - p.getY());
-		vect.setDz(pointObserver.getZ() - p.getZ());
+		vect.setDx(pointObserver.getX() - pointCamera.getX());
+		vect.setDy(pointObserver.getY() - pointCamera.getY());
+		vect.setDz(pointObserver.getZ() - pointCamera.getZ());
+		
+		double ratio = 0.25;
+		double dx = step * ratio * vect.getDx();
+		double dy = step * ratio * vect.getDy();
+		double dz = step * ratio * vect.getDz();
+		
+		camera.translation(dx, dy, dz);
+	}
+	
+	/** Fait tourner la camera autour du point regarde */
+	public void moveRotation(double dx, double dy) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
+		
+		// Direction
+		Vecteur3D vect = new Vecteur3D(0, 0, 0);
+		vect.setDx(pointCamera.getX() - pointObserver.getX());
+		vect.setDy(pointCamera.getY() - pointObserver.getY());
+		vect.setDz(pointCamera.getZ() - pointObserver.getZ());
 		
 		double r = vect.getNorme();
 		double pPhi = Math.acos(vect.getDz() / r);
@@ -383,52 +550,48 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		if (vect.getDy() < 0) {
 			pTeta *= -1.0;
 		}
-		pTeta += ((float) -dx) / ((float) getWidth()) * Math.PI;
-		pPhi += ((float) -dy) / ((float) getHeight()) * Math.PI;
-		if (pPhi > 7*Math.PI/8) {
-			pPhi = 7*Math.PI/8;
-		} else if (pPhi < Math.PI/8) {
-			pPhi = Math.PI/8;
+		pTeta += ((float) dx) / ((float) viewportWidth) * Math.PI;
+		pPhi += ((float) -dy) / ((float) viewportHeight) * Math.PI;
+		if (pPhi < Math.PI/6) {
+			pPhi = Math.PI/6;
+		} else if (pPhi > 5*Math.PI/6) {
+			pPhi = 5*Math.PI/6;
 		}
 		
-		pointObserver.setX(p.getX() + r * Math.sin(pPhi) * Math.cos(pTeta));
-		pointObserver.setY(p.getY() + r * Math.sin(pPhi) * Math.sin(pTeta));
-		pointObserver.setZ(p.getZ() + r * Math.cos(pPhi));
-		
-		getRepereObserver();
+		pointCamera.setX(pointObserver.getX() + r * Math.sin(pPhi) * Math.cos(pTeta));
+		pointCamera.setY(pointObserver.getY() + r * Math.sin(pPhi) * Math.sin(pTeta));
+		pointCamera.setZ(pointObserver.getZ() + r * Math.cos(pPhi));
 	}
 	
-	/*public void moveLook(int dx, int dy) {
-		teta += ((float) -dx) / ((float) getWidth()) * Math.PI;
-		phi += ((float) dy) / ((float) getHeight()) * Math.PI;
-		if (phi > 7*Math.PI/8) {
-			phi = 7*Math.PI/8;
-		} else if (phi < Math.PI/8) {
-			phi = Math.PI/8;
+	/** Change le point regarde sur la sphere englobant la camera */
+	public void rotationHead(int dx, int dy) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
+		
+		// Direction
+		Vecteur3D vect = new Vecteur3D(0, 0, 0);
+		vect.setDx(pointObserver.getX() - pointCamera.getX());
+		vect.setDy(pointObserver.getY() - pointCamera.getY());
+		vect.setDz(pointObserver.getZ() - pointCamera.getZ());
+		
+		double r = vect.getNorme();
+		double pPhi = Math.acos(vect.getDz() / r);
+		double pTeta = Math.acos(vect.getDx() / (r*Math.sin(pPhi)));
+		if (vect.getDy() < 0) {
+			pTeta *= -1.0;
 		}
-		getRepereObserver();
-	}*/
-	
-	/** Fait avancer la caméra dans la direction du regard */
-	public void moveForward(int step) {
-		Point3D p3d = getPoint3DFromObserverToWorld(new Point3D(0, 0, step));
-		Matrix m = world.getBase().getMatrixTranslation(repereObserver);
-		p3d.translation(-m.get(0, 0), -m.get(1, 0), -m.get(2, 0));
+		pTeta += ((float) dx) / ((float) viewportWidth) * Math.PI;
+		pPhi += ((float) -dy) / ((float) viewportHeight) * Math.PI;
+		if (pPhi < Math.PI/6) {
+			pPhi = Math.PI/6;
+		} else if (pPhi > 5*Math.PI/6) {
+			pPhi = 5*Math.PI/6;
+		}
 		
-		pointObserver.translation(p3d.getX(), p3d.getY(), p3d.getZ());
-		center.translation(p3d.getX(), p3d.getY(), p3d.getZ());
+		pointObserver.setX(pointCamera.getX() + r * Math.sin(pPhi) * Math.cos(pTeta));
+		pointObserver.setY(pointCamera.getY() + r * Math.sin(pPhi) * Math.sin(pTeta));
+		pointObserver.setZ(pointCamera.getZ() + r * Math.cos(pPhi));
 	}
-	
-	/**Regarde dans la direction du point visé */
-	public void moveToPoint2D(int x, int y) {
-		Point2D p2d = new Point2D((x - (int) baseGraphic.getOrigine().getX()) / (scale), (y - (int) baseGraphic.getOrigine().getY()) / (scale));
-		Point3D p3d = getProjectivePoint3DFromGraphic(p2d, 2);
-		
-		center = getPoint3DFromObserverToWorld(p3d);
-		getRepereObserver();
-	}
-	
-	
 	
 	
 	// Detection de la souris
@@ -438,12 +601,13 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		// Click gauche
 		if (eventButton == 1) {
-			moveTranslation(-decalX, -decalY);
+			moveTranslation(-decalX/320.0, -decalY/240.0);
 		}
 		
 		// Click molette
 		if (eventButton == 2) {
-			moveRotation(decalX, decalY);
+			moveRotation(-decalX, decalY);
+			//rotationHead(decalX, decalY);
 		}
 		
 		// Click droit
@@ -461,8 +625,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	}
 	
 	public void mouseClicked(MouseEvent e) {
-		moveToPoint2D(e.getX(), e.getY());
-		repaint();
+		
 	}
 	
 	public void mouseEntered(MouseEvent e) {
@@ -488,4 +651,49 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		repaint();
 	}
 	
+	
+	private class Hash {
+		
+		private ArrayList<Cell> arrayCell;
+		private int min;
+		
+		/** Constructeur */
+		public Hash(int min, int max) {
+			this.arrayCell = new ArrayList<Cell>(max-min+1);
+			for (int i = 0; i < max-min+1; i++) {
+				arrayCell.add(new Cell());
+			}
+			this.min = min;
+		}
+		
+		public void put(int key, int value) {
+			arrayCell.get(key - min).add(value);
+		}
+		
+		public ArrayList<Cell> getArray() {
+			return arrayCell;
+		}
+	}
+	
+	private class Cell {
+		
+		public Integer x1, x2;
+		
+		public Cell() {
+			this.x1 = null;
+			this.x2 = null;
+		}
+		
+		public void add(int value) {
+			if (x1 == null) {
+				x1 = value;
+			} else if (x2 == null) {
+				x2 = value;
+			}
+		}
+		
+		public String toString() {
+			return x1 + " , " + x2;
+		}
+	}
 }

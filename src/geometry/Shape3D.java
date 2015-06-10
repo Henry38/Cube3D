@@ -3,35 +3,50 @@ package geometry;
 import java.util.ArrayList;
 
 import math.Base3D;
+import math.Mat4;
 import math.Point3D;
-import math.Vecteur3D;
 
 public class Shape3D {
 	
+	private Shape3D parent;
 	private Base3D base;
-	private ArrayList<Polygon3D> listPolygon;
-	private Point3D barycentre;
+	private ArrayList<Triangle> listTriangle;
+	private String path;
 	
-	public Shape3D(double x, double y, double z) {
+	/** Construteur */
+	public Shape3D(Shape3D parent) {
+		this.parent = parent;
+		this.path = "./image/cube2.jpg";
+	}
+	
+	public Shape3D(Shape3D parent, double x, double y, double z) {
+		this.parent = parent;
 		this.base = new Base3D(new Point3D(x, y, z));
-		this.listPolygon = new ArrayList<Polygon3D>();
-		this.barycentre = new Point3D(0, 0, 0);
+		this.listTriangle = new ArrayList<Triangle>();
+		this.path = "./image/cube2.jpg";
 	}
 	
 	public final Base3D getBase() {
 		return base;
 	}
 	
-	public final ArrayList<Polygon3D> getListPolygon3D() {
-		return listPolygon;
+	public Mat4 getModelMat() {
+		if (parent == null) {
+			return new Mat4(getBase());
+		}
+		return parent.getModelMat().mult(new Mat4(getBase()));
 	}
 	
-	public final Point3D getBarycentre() {
-		return barycentre;
+	public final ArrayList<Triangle> getListTriangle() {
+		return listTriangle;
 	}
 	
-	public void rotation(Vecteur3D axe, int degre) {
-		base.getOrigine().rotationAxe(axe, degre);
+	public String getPath() {
+		return path;
+	}
+	
+	public void translation (double dx, double dy, double dz) {
+		base.translation(dx, dy, dz);
 	}
 	
 	/** Augmente le degré de rotation */
@@ -49,17 +64,11 @@ public class Shape3D {
 		base.rotationOz(radian);
 	}
 	
-	public void addPolygon(Polygon3D polygon) {
-		listPolygon.add(polygon);
+	public void addTriangle(Triangle triangle) {
+		listTriangle.add(triangle);
 	}
 	
-	public void removePolygon(Polygon3D polygon) {
-		listPolygon.remove(polygon);
-	}
-	
-	public void setBarycentre(double x, double y, double z) {
-		barycentre.setX(x);
-		barycentre.setY(y);
-		barycentre.setZ(z);
+	public void removeTriangle(Triangle triangle) {
+		listTriangle.remove(triangle);
 	}
 }
