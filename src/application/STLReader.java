@@ -6,19 +6,47 @@ import geometry.Triangle;
 import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 import math.Coord;
 import math.Point3D;
 import math.Vecteur3D;
 
-public class STLReader {
+public class StlReader {
 	
 	private Scanner sc;
 	
 	/** Constructeur */
-	public STLReader() {
+	public StlReader() {
 		sc = null;
+	}
+	
+	public void corrective(String path) {
+		try {
+			Scanner sc = new Scanner(new FileInputStream("model/" + path + ".stl"));
+			FileWriter fileWriter = new FileWriter("model/" + path + "2.stl");
+			double dx, dy, dz;
+			
+			while (sc.hasNextLine()) {
+				String line = sc.nextLine();
+				String[] tab = line.split(" ");
+				if (tab[0].equals("facet")) {
+					fileWriter.write("facet normal ");
+					dx = Double.parseDouble(tab[2]);
+					dy = Double.parseDouble(tab[3]);
+					dz = Double.parseDouble(tab[4]);
+					fileWriter.write((-dx) + " " + (-dy) + " " + (-dz) + "\n");
+				} else {
+					fileWriter.write(line + "\n");
+				}
+				fileWriter.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/** Retourne la shape3D du fichier stl */

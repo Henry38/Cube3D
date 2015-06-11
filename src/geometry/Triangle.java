@@ -12,7 +12,7 @@ public class Triangle {
 	private Point3D p1, p2, p3;
 	private Color color1, color2, color3;
 	private Coord coord1, coord2, coord3;
-	private Vecteur3D normale;
+	private Vecteur3D normale1, normale2, normale3;
 	
 	public Triangle(Point3D p1, Point3D p2, Point3D p3) {
 		this.p1 = p1;
@@ -39,6 +39,18 @@ public class Triangle {
 		return p3;
 	}
 	
+	public Vecteur3D getNormale1() {
+		return normale1;
+	}
+	
+	public Vecteur3D getNormale2() {
+		return normale2;
+	}
+	
+	public Vecteur3D getNormale3() {
+		return normale3;
+	}
+	
 	public final Color[] getListColor() {
 		return new Color[] {color1, color2, color3};
 	}
@@ -47,8 +59,8 @@ public class Triangle {
 		return new Coord[] {coord1, coord2, coord3};
 	}
 	
-	public final Vecteur3D getNormale() {
-		return normale;
+	public final Vecteur3D[] getNormale() {
+		return new Vecteur3D[] {normale1, normale2, normale3};
 	}
 	
 	public boolean isVisible(Mat4 modelMat, Point3D eye) {
@@ -61,7 +73,7 @@ public class Triangle {
 		double dy = p.getY() - eye.getY();
 		double dz = p.getZ() - eye.getZ();
 		Vecteur3D vision = new Vecteur3D(dx, dy, dz);
-		Vecteur3D normale = modelMat.mult(new Vec4(getNormale())).toVecteur3D();
+		Vecteur3D normale = modelMat.mult(new Vec4(normale1)).toVecteur3D();
 		
 		return (Vecteur3D.produit_scalaire(vision, normale) < 0);
 	}
@@ -92,8 +104,16 @@ public class Triangle {
 		this.coord3 = coord3;
 	}
 	
-	public void setNormale(Vecteur3D vect) {
-		this.normale = vect;
+	public void setNormale(Vecteur3D normale) {
+		this.normale1 = normale;
+		this.normale2 = normale;
+		this.normale3 = normale;
+	}
+	
+	public void setNormale(Vecteur3D normale1, Vecteur3D normale2, Vecteur3D normale3) {
+		this.normale1 = normale1;
+		this.normale2 = normale2;
+		this.normale3 = normale3;
 	}
 	
 //	public double area() {

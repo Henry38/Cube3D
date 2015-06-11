@@ -35,7 +35,7 @@ public class Application3D extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			shape.rotationOx(Math.PI / 64);
+			shape.rotationOz(Math.PI / 256);
 			frame.repaint();
 		}
 	}
@@ -65,22 +65,24 @@ public class Application3D extends Thread {
 		
 		Light light = new Light(new Point3D(10, 10, 10), new Vecteur3D(-1, -1, -1));
 		
-		Cube cube1 = new Cube(null, 0, 0, 0);
-		Cube cube2 = new Cube(null, -1.1, -1.1, 0);
+//		Cube cube1 = new Cube(null, 0, 0, 0);
+//		Cube cube2 = new Cube(null, -1.1, -1.1, 0);
 		
-//		STLReader read = new STLReader();
-//		Shape3D pion = read.getShape("pion.stl");
-//		pion.rotationOx(Math.PI/4);
+		StlReader stlReader = new StlReader();
+		ObjReader objReader = new ObjReader();
+		
+		Shape3D teapot = objReader.getShape("teapot.obj");
+		Shape3D pion = stlReader.getShape("cavalier.stl");
 		
 		World3D world = new World3D();
-		//world.addShape(pion);
+		world.addShape(pion);
+		//world.addShape(teapot);
 		//world.addShape(new Damier(null));
-		world.addShape(cube1);
-//		world.addShape(cube2);
+		//world.addShape(cube1);
+		//world.addShape(cube2);
 		world.setLight(light);
 		
-		//Camera camera1 = new Camera(new Point3D(10, 10, 10), new Point3D(0, 0, 5), PROJECTION.PERSPECTIVE);
-		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
+		Camera camera1 = new Camera(new Point3D(5, 5, 5), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
 		Observer observer1 = new Observer(world, camera1, 640, 480);
@@ -94,7 +96,7 @@ public class Application3D extends Thread {
 		frame.pack();
 		frame.setVisible(true);
 		
-//		Application3D app = new Application3D(frame, cube);
-//		app.start();
+		Application3D app = new Application3D(frame, pion);
+		app.start();
 	}
 }

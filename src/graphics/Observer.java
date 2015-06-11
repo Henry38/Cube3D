@@ -238,30 +238,70 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private Hash getHash(Point2D p1, Point2D p2, Point2D p3, boolean b1, boolean b2, boolean b3) {
 		int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
 		int maxY = Math.max(p1.getY(), Math.max(p2.getY(), p3.getY()));
-		Hash hash = new Hash(minY, maxY);
+		Hash hash;// = new Hash(minY, maxY-minY+1);
 		
-	    LinkedList<Point2D> lineP1P2 = leftEdgeScan(p1.getX(), p1.getY(), p2.getX(), p2.getY(), b1);
-	    LinkedList<Point2D> lineP2P3 = leftEdgeScan(p2.getX(), p2.getY(), p3.getX(), p3.getY(), b2);
-	    LinkedList<Point2D> lineP3P1 = leftEdgeScan(p3.getX(), p3.getY(), p1.getX(), p1.getY(), b3);
-	    
-	    if ((b1 && b2) || (!b1 && !b2)) {
-	    	lineP1P2.pollLast();
-	    }
-	    for (Point2D p : lineP1P2) {
-	    	hash.put(p.getY(), p.getX());
-	    }
-	    if ((b2 && b3) || (!b2 && !b3)) {
-	    	lineP2P3.pollLast();
-	    }
-	    for (Point2D p : lineP2P3) {
-	    	hash.put(p.getY(), p.getX());
-	    }
-	    if ((b1 && b3) || (!b1 && !b3)) {
-	    	lineP3P1.pollLast();
-	    }
-	    for (Point2D p : lineP3P1) {
-	    	hash.put(p.getY(), p.getX());
-	    }
+		if (p1.equals(p2) && p2.equals(p3)) {
+			hash = new Hash(minY, 0);
+			return hash;
+		}
+		if (p1.getX() == p2.getX() && p2.getX() == p3.getX()) {
+			hash = new Hash(minY, 0);
+			return hash;
+		}
+		if (p1.getY() == p2.getY() && p2.getY() == p3.getY()) {
+			hash = new Hash(minY, 0);
+			return hash;
+		}
+		
+		LinkedList<Point2D> lineP1P2;
+		LinkedList<Point2D> lineP2P3;
+		LinkedList<Point2D> lineP3P1;
+		
+//		if (p1.getY() == p2.getY()) {
+//			// Top || Bottom flat triangle P1P2
+//			lineP1P2 = new LinkedList<Point2D>();
+//			lineP2P3 = leftEdgeScan(p2.getX(), p2.getY(), p3.getX(), p3.getY(), b2);
+//			lineP3P1 = leftEdgeScan(p3.getX(), p3.getY(), p1.getX(), p1.getY(), b3);
+//		} else if (p1.getY() == p2.getY()) {
+//			// Top || Bottom flat triangle P2P3
+//			lineP1P2 = leftEdgeScan(p1.getX(), p1.getY(), p2.getX(), p2.getY(), b1);
+//			lineP2P3 = new LinkedList<Point2D>();
+//			lineP3P1 = leftEdgeScan(p3.getX(), p3.getY(), p1.getX(), p1.getY(), b3);
+//		} else if (p1.getY() == p2.getY()) {
+//			// Top || Bottom flat triangle P3P1
+//			lineP1P2 = leftEdgeScan(p1.getX(), p1.getY(), p2.getX(), p2.getY(), b1);
+//			lineP2P3 = leftEdgeScan(p2.getX(), p2.getY(), p3.getX(), p3.getY(), b2);
+//			lineP3P1 = new LinkedList<Point2D>();
+//		} else {
+			// Default triangle
+			lineP1P2 = leftEdgeScan(p1.getX(), p1.getY(), p2.getX(), p2.getY(), b1);
+			lineP2P3 = leftEdgeScan(p2.getX(), p2.getY(), p3.getX(), p3.getY(), b2);
+			lineP3P1 = leftEdgeScan(p3.getX(), p3.getY(), p1.getX(), p1.getY(), b3);
+			
+//		}
+		hash = new Hash(minY, maxY-minY+1);
+		
+		if ((b1 && b2) || (!b1 && !b2)) {
+			lineP1P2.pollLast();
+		}
+		for (Point2D p : lineP1P2) {
+			hash.put(p.getY(), p.getX());
+		}
+		
+		
+		if ((b2 && b3) || (!b2 && !b3)) {
+			lineP2P3.pollLast();
+		}
+		for (Point2D p : lineP2P3) {
+			hash.put(p.getY(), p.getX());
+		}
+		
+		if ((b1 && b3) || (!b1 && !b3)) {
+			lineP3P1.pollLast();
+		}
+		for (Point2D p : lineP3P1) {
+			hash.put(p.getY(), p.getX());
+		}
 		
 		return hash;
 	}
@@ -379,14 +419,10 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
 			double area1, area2, area3, d, h, z;
 			
-//			double coefLight = Vecteur3D.produit_scalaire(triangle.getNormale(), light.getDirection());
-//			if (coefLight < 0) {
-//				int r = (int) (200 * Math.min(-coefLight, 1.0));
-//				col = new Color(r, 0, 0);
-//			} else {
-//				int r = (int) (80 * coefLight);
-//				col = new Color(r, 0, 0);
-//			}
+			double cos = -Vecteur3D.cosinus(light.getDirection(), triangle.getNormale1());
+			int r = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
+			int g = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
+			int b = (int) Math.max(0, Math.min(255 + 200 * cos, 255));
 			
 			ArrayList<Cell> arrayCell = hash.getArray();
 			for (int k = 0; k < arrayCell.size(); k++) {
@@ -431,9 +467,9 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		    				zBuffer[(y * viewportWidth) + x] = z;
 		    				
 		    				//color = new Color(texture.getRGB((int)(((u1+u2+u3)/h)*255), (int)(((v1+v2+v3)/h)*255)));
-		    				colorBuffer[index + 0] = color.getRed();
-		    				colorBuffer[index + 1] = color.getGreen();
-		    				colorBuffer[index + 2] = color.getBlue();
+		    				colorBuffer[index + 0] = r;//color.getRed();
+		    				colorBuffer[index + 1] = g;//color.getGreen();
+		    				colorBuffer[index + 2] = b;//color.getBlue();
 		    			}
 					}
 					x += x_inc;
@@ -647,9 +683,9 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		private int min;
 		
 		/** Constructeur */
-		public Hash(int min, int max) {
-			this.arrayCell = new ArrayList<Cell>(max-min+1);
-			for (int i = 0; i < max-min+1; i++) {
+		public Hash(int min, int size) {
+			this.arrayCell = new ArrayList<Cell>(size);
+			for (int i = 0; i < size; i++) {
 				arrayCell.add(new Cell());
 			}
 			this.min = min;

@@ -72,4 +72,8 @@ public class Point2D {
 	    return ( ((b.getX()-a.getX())*(c.getY()-a.getY()) - (b.getY()-a.getY())*(c.getX()-a.getX())) >= 0 );
 	}
 	
+	/** Retourne vrai si les deux points ont les memes coordonnees */
+	public boolean equals(Point2D point) {
+		return (getX() == point.getX() && getY() == point.getY());
+	}
 }
