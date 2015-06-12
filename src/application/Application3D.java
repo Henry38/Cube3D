@@ -72,17 +72,18 @@ public class Application3D extends Thread {
 		ObjReader objReader = new ObjReader();
 		
 		Shape3D teapot = objReader.getShape("teapot.obj");
+		teapot.rotationOx(Math.PI/2);
 		Shape3D pion = stlReader.getShape("cavalier.stl");
 		
 		World3D world = new World3D();
-		world.addShape(pion);
+		world.addShape(teapot);
 		//world.addShape(teapot);
 		//world.addShape(new Damier(null));
 		//world.addShape(cube1);
 		//world.addShape(cube2);
 		world.setLight(light);
 		
-		Camera camera1 = new Camera(new Point3D(5, 5, 5), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
+		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
 		Observer observer1 = new Observer(world, camera1, 640, 480);
@@ -96,7 +97,7 @@ public class Application3D extends Thread {
 		frame.pack();
 		frame.setVisible(true);
 		
-		Application3D app = new Application3D(frame, pion);
+		Application3D app = new Application3D(frame, teapot);
 		app.start();
 	}
 }
