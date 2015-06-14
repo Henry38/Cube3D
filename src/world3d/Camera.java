@@ -1,6 +1,5 @@
 package world3d;
 
-import geometry.Shape3D;
 import math.Base3D;
 import math.Mat4;
 import math.Point3D;

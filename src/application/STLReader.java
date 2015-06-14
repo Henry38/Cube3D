@@ -25,7 +25,9 @@ public class StlReader {
 	
 	public void corrective(String path) {
 		try {
+			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(new FileInputStream("model/" + path + ".stl"));
+			@SuppressWarnings("resource")
 			FileWriter fileWriter = new FileWriter("model/" + path + "2.stl");
 			double dx, dy, dz;
 			

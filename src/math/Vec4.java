@@ -56,7 +56,7 @@ public class Vec4 {
 	}
 	
 	public Point3D normalized() {
-		if (Math.abs(getW()) < 0.001) {
+		if (Math.abs(getW()) < 0.0001) {
 			throw new ArithmeticException("Coordonnees homogenes : division par 0");
 		}
 		double x = getX() / getW();

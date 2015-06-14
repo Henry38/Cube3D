@@ -2,9 +2,7 @@ package geometry;
 
 import java.awt.Color;
 import math.Coord;
-import math.Mat4;
 import math.Point3D;
-import math.Vec4;
 import math.Vecteur3D;
 
 public class Triangle {
@@ -62,29 +60,6 @@ public class Triangle {
 	public final Vecteur3D[] getNormale() {
 		return new Vecteur3D[] {normale1, normale2, normale3};
 	}
-	
-	public boolean isVisible(Mat4 modelMat, Point3D eye) {
-		if (getNormale() == null) {
-			return true;
-		}
-		
-		Point3D p = modelMat.mult(new Vec4(p1)).normalized();
-		double dx = p.getX() - eye.getX();
-		double dy = p.getY() - eye.getY();
-		double dz = p.getZ() - eye.getZ();
-		Vecteur3D vision = new Vecteur3D(dx, dy, dz);
-		Vecteur3D normale = modelMat.mult(new Vec4(normale1)).toVecteur3D();
-		
-		return (Vecteur3D.produit_scalaire(vision, normale) < 0);
-	}
-	
-//	public Vecteur3D getVision(Mat4 modelMat, Point3D eye) {
-//		Point3D p = modelMat.mult(new Vec4(p1)).toPoint3D();
-//		double dx = p.getX() - eye.getX();
-//		double dy = p.getX() - eye.getX();
-//		double dz = p.getX() - eye.getX();
-//		return new Vecteur3D(dx, dy, dz);
-//	}
 	
 	public void setColor(Color color) {
 		this.color1 = color;

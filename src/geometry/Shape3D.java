@@ -1,6 +1,11 @@
 package geometry;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import math.Base3D;
 import math.Mat4;
@@ -11,64 +16,75 @@ public class Shape3D {
 	private Shape3D parent;
 	private Base3D base;
 	private ArrayList<Triangle> listTriangle;
-	private String path;
+	private String pathTexture;
 	
 	/** Construteur */
 	public Shape3D(Shape3D parent) {
 		this.parent = parent;
-		this.path = "./image/cube2.jpg";
+		this.pathTexture = "./image/cube2.jpg";
 	}
 	
+	/** Constructeur */
 	public Shape3D(Shape3D parent, double x, double y, double z) {
 		this.parent = parent;
 		this.base = new Base3D(new Point3D(x, y, z));
 		this.listTriangle = new ArrayList<Triangle>();
-		this.path = "./image/cube2.jpg";
+		this.pathTexture = "./image/cube2.jpg";
 	}
 	
+	/** Retourne la base de la shape3D */
 	public final Base3D getBase() {
 		return base;
 	}
 	
-	public Mat4 getModelMat() {
-		if (parent == null) {
-			return new Mat4(getBase());
-		}
-		return parent.getModelMat().mult(new Mat4(getBase()));
-	}
-	
+	/** Retourne la liste des triangles*/
 	public final ArrayList<Triangle> getListTriangle() {
 		return listTriangle;
 	}
 	
-	public String getPath() {
-		return path;
+	/** Retourne la matrice modele */
+	public Mat4 modelMat() {
+		if (parent == null) {
+			return new Mat4(getBase());
+		}
+		return parent.modelMat().mult(new Mat4(getBase()));
 	}
 	
-	public void translation (double dx, double dy, double dz) {
-		base.translation(dx, dy, dz);
+	public BufferedImage getTexture() throws IOException {
+		return ImageIO.read(new File(pathTexture));
 	}
 	
-	/** Augmente le degré de rotation */
-	public void rotationOx(double radian) {
-		base.rotationOx(radian);
-	}
-	
-	/** Augmente le degré de rotation */
-	public void rotationOy(double radian) {
-		base.rotationOy(radian);
-	}
-	
-	/** Augmente le degré de rotation */
-	public void rotationOz(double radian) {
-		base.rotationOz(radian);
-	}
-	
+	/** Ajoute le triangle a la shape3D */
 	public void addTriangle(Triangle triangle) {
 		listTriangle.add(triangle);
 	}
 	
+	/** Retire le triangle a la shape3D */
 	public void removeTriangle(Triangle triangle) {
 		listTriangle.remove(triangle);
+	}
+	
+	public void setTexture(String pathTexture) {
+		this.pathTexture = pathTexture;
+	}
+	
+	/** Translation de la base */
+	public void translation (double dx, double dy, double dz) {
+		base.translation(dx, dy, dz);
+	}
+	
+	/** Augmente le degre de rotation */
+	public void rotationOx(double radian) {
+		base.rotationOx(radian);
+	}
+	
+	/** Augmente le degre de rotation */
+	public void rotationOy(double radian) {
+		base.rotationOy(radian);
+	}
+	
+	/** Augmente le degre de rotation */
+	public void rotationOz(double radian) {
+		base.rotationOz(radian);
 	}
 }
