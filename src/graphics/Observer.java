@@ -34,7 +34,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private Camera camera;
 	private Viewport viewport;
 	
-	Mat4 modelMat, viewMat, projMat;
+	Mat4 modelMat, viewMat, projMat, normalMat;
 	Light light;
 	
 	private BufferedImage image, texture;
@@ -88,8 +88,8 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			zBuffer[i] = 1.0;
 		}
 		
-		viewMat = camera.getViewMat();
-		projMat = camera.getProjMat();
+		viewMat = camera.viewMat();
+		projMat = camera.projMat();
 		light = world.getLight();
 		
 		for (Shape3D shape : world.getlistShape()) {
@@ -97,6 +97,8 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		}
 		
 		//drawRepere(world.getBase());
+//		g.setColor(Color.red);
+//		drawLine3D(world.getOrigine(), new Point3D(8, 0, 0));
 		
 		//Draw center
 		color = Color.cyan;
@@ -320,7 +322,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		return (point.getX() > -w && point.getX() < w && point.getY() > -w && point.getY() < w && point.getZ() > -w && point.getZ() < w);
 	}
 	
-	/** Retourne la projection ecran du point definit dans le repere World */
+	/** Retourne la projection fenetre du point definit dans le repere World */
 	private Point3D getWindowScreenPoint3D(Vec4 point) {
 		Point3D p = point.normalized();
 		int x = (int) ((viewportWidth/2.0) * (p.getX()) + viewport.getX() + (viewportWidth/2.0));
@@ -424,10 +426,14 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			double u, v, z;
 			double area1, area2, area3, d, h;
 			
-			double cos = -Vecteur3D.cosinus(light.getDirection(), triangle.getNormale1());
+			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormale1())).toVecteur3D();
+			double cos = -Vecteur3D.cosinus(light.getDirection(), n);
 			int r = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
 			int g = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
 			int b = (int) Math.max(0, Math.min(255 + 200 * cos, 255));
+//			int r = color.getRed();
+//			int g = color.getGreen();
+//			int b = color.getBlue();
 			
 			Cell c;
 			for (int k = 0; k < listCell.size(); k++) {
@@ -484,6 +490,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	/** Dessine les arêtes de la Shape3D definie dans le repere World */
 	private void drawShape3D(Shape3D shape) {
 		modelMat = shape.getModelMat();
+		normalMat = camera.normalMat(modelMat, viewMat);
 		try {
 			texture = ImageIO.read(new File(shape.getPath()));
 		} catch (IOException e) {
@@ -493,6 +500,14 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		for (Triangle triangle : shape.getListTriangle()) {
 			// Back face culling
+			
+//			Vecteur3D n = normalMat.mult(new Vec4(triangle.getNormale1())).toVecteur3D();
+//			//System.out.println(n);
+//			if (n.getDz() < 0) {
+//				color = triangle.getColor();
+//				drawTriangle(triangle);
+//			}
+			
 			if (triangle.isVisible(modelMat, camera.getOrigine())) {
 				color = triangle.getColor();
 				//drawEdgeTriangle(triangle);

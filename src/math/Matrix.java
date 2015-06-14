@@ -26,6 +26,17 @@ public class Matrix {
 		}
 	}
 	
+	/** Constructeur */
+	public Matrix(Mat4 m) {
+		this.matrix = new double[4][];
+		for (int i = 0; i < 4; i++) {
+			matrix[i] = new double[4];
+			for (int j = 0; j < 4; j++) {
+				set(i, j, m.get(i, j));
+			}
+		}
+	}
+	
 	/** Retourne la matrice clonée */
 	public Matrix clone() {
 		Matrix m = new Matrix(getLineDimension(), getColumnDimension());

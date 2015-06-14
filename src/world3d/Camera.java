@@ -1,5 +1,6 @@
 package world3d;
 
+import geometry.Shape3D;
 import math.Base3D;
 import math.Mat4;
 import math.Point3D;
@@ -100,7 +101,7 @@ public class Camera {
 	}
 	
 	/** Recupere la matrice camera */
-	public Mat4 getViewMat() {
+	public Mat4 viewMat() {
 		Vecteur3D k = new Vecteur3D(pointCamera, pointObserver);
 		Vecteur3D up = new Vecteur3D(0, 0, 1);
 		if (Vecteur3D.colineaire(k, up)) {
@@ -113,16 +114,6 @@ public class Camera {
 		u.normalized();
 		v.normalized();
 		k.normalized();
-		
-//		Vecteur3D direction = new Vecteur3D(pointCamera, pointObserver);
-//		double phi = Math.acos(direction.getDz() / direction.getNorme());
-//		double teta = Math.acos(direction.getDx() / (direction.getNorme()*Math.sin(phi)));
-//		if (direction.getDy() < 0) {
-//			teta *= -1;
-//		}
-//		
-//		repereCamera.rotationOz(teta - Math.PI/2);
-//		repereCamera.rotationOx(-phi);
 		
 		Vecteur3D t = new Vecteur3D(pointCamera, new Point3D(0, 0, 0));
 		double dx = u.getDx()*t.getDx() + u.getDy()*t.getDy() + u.getDz()*t.getDz();
@@ -138,7 +129,7 @@ public class Camera {
 		return m;
 	}
 	
-	public Mat4 getProjMat() {
+	public Mat4 projMat() {
 		if (projection == PROJECTION.PERSPECTIVE) {
 			Mat4 m = new Mat4(new double[][] {
 					{2*zNear/(uMax-uMin),                   0,  -(uMax+uMin)/(uMax-uMin),                          0},
@@ -158,8 +149,14 @@ public class Camera {
 		}
 	}
 	
+	public Mat4 normalMat(Mat4 modelMat, Mat4 viewMat) {
+		return viewMat.mult(modelMat);
+		// normalMat = transpose(inverse(modelView));
+		//			   (modelView-1)T
+	}
+	
 	public String toString() {
-		Mat4 m = getViewMat();
+		Mat4 m = viewMat();
 		String res = "";
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
