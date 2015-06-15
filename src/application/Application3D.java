@@ -8,7 +8,6 @@ import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import math.Mat4;
 import math.Point3D;
 import math.Vecteur3D;
 import geometry.Cube;
@@ -64,29 +63,28 @@ public class Application3D extends Thread {
 		frame.setLocation(width / 6, height / 6);
 		frame.setResizable(false);
 		
-		Light light = new Light(new Point3D(10, 10, 10), new Vecteur3D(-1, -1, -1));
-		
-		Cube cube1 = new Cube(null, 0, 0, 0);
-		cube1.translation(0, 1, 0);
-		cube1.rotationOz(Math.PI/4);
-//		Cube cube2 = new Cube(null, -1.1, -1.1, 0);
-		
 		StlReader stlReader = new StlReader();
 		ObjReader objReader = new ObjReader();
 		
+		// Creation des objets du monde
+		Light light = new Light(new Point3D(10, 10, 10), new Vecteur3D(-1, -1, -1));
+		Cube cube1 = new Cube(null, 0, 0, 0);
 		Shape3D teapot = objReader.getShape("teapot.obj");
-		teapot.rotationOx(Math.PI/2);
 		Shape3D piece = stlReader.getShape("reine.stl");
 		
+		// Transfomration
+		teapot.rotationOx(Math.PI/2);
+		
+		// Creation du monde
 		World3D world = new World3D();
-		world.addShape(piece);
+		//world.addShape(piece);
 		//world.addShape(teapot);
-		//world.addShape(cube1);
+		world.addShape(cube1);
 		//world.addShape(cube2);
 		world.setLight(light);
 		
-		//Camera camera1 = new Camera(new Point3D(4, 0, 0), new Point3D(0, 0, 0), PROJECTION.PERSPECTIVE);
-		Camera camera1 = new Camera(new Point3D(25, 25, 40), new Point3D(0, 0, 20), PROJECTION.PERSPECTIVE);
+		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
+		//Camera camera1 = new Camera(new Point3D(25, 25, 40), new Point3D(0, 0, 20), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
 		Observer observer1 = new Observer(world, camera1, 640, 480);
@@ -99,13 +97,6 @@ public class Application3D extends Thread {
 		frame.add(panneau);
 		frame.pack();
 		frame.setVisible(true);
-		
-//		Mat4 viewMat = camera1.viewMat();
-//		Mat4 proj = camera1.projMat();
-//		Mat4 normalMat = camera1.normalMat();
-//		
-//		System.out.println(viewMat.mult(normalMat));
-		
 		
 //		Application3D app = new Application3D(frame, piece);
 //		app.start();

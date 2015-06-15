@@ -13,6 +13,7 @@ public class Base3D {
 		this.ok = new Vecteur3D(0, 0, 1);
 	}
 	
+	/** Constructeur */
 	public Base3D(Point3D origine, Vecteur3D oi, Vecteur3D oj, Vecteur3D ok) {
 		this.origine = origine;
 		this.oi = oi;
@@ -20,18 +21,22 @@ public class Base3D {
 		this.ok = ok;
 	}
 	
+	/** Retourne l'origine */
 	public final Point3D getOrigine() {
 		return origine;
 	}
 	
+	/** Retourne les trois vecteurs de la base */
 	public final Vecteur3D[] getVecteurs() {
 		return new Vecteur3D[] {oi, oj, ok};
 	}
 	
+	/** Translate la base */
 	public void translation(double dx, double dy, double dz) {
 		origine.translation(dx, dy, dz);
 	}
 	
+	/** Translate la base */
 	public void translation(Vecteur3D t) {
 		translation(t.getDx(), t.getDy(), t.getDz());
 	}

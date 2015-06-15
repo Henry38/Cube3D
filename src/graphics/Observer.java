@@ -429,12 +429,12 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			
 			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormale1())).toVecteur3D();
 			double cos = -Vecteur3D.cosinus(light.getDirection(), n);
-			int r = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
-			int g = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
-			int b = (int) Math.max(0, Math.min(255 + 200 * cos, 255));
-//			int r = color.getRed();
-//			int g = color.getGreen();
-//			int b = color.getBlue();
+//			int r = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
+//			int g = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
+//			int b = (int) Math.max(0, Math.min(255 + 200 * cos, 255));
+			int r = color.getRed();
+			int g = color.getGreen();
+			int b = color.getBlue();
 			
 			Cell c;
 			for (int k = 0; k < listCell.size(); k++) {
