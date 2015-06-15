@@ -87,4 +87,26 @@ public class Shape3D {
 	public void rotationOz(double radian) {
 		base.rotationOz(radian);
 	}
+	
+	/** Change l'echelle en ox */
+	public void scaleX(double rx) {
+		base.scaleX(rx);
+	}
+	
+	/** Change l'echelle en oy */
+	public void scaleY(double ry) {
+		base.scaleY(ry);
+	}
+	
+	/** Change l'echelle en oz */
+	public void scaleZ(double rz) {
+		base.scaleZ(rz);
+	}
+	
+	/** Change l'echelle sur les trois axes */
+	public void scale(double r) {
+		scaleX(r);
+		scaleY(r);
+		scaleZ(r);
+	}
 }

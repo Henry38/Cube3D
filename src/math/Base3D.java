@@ -53,4 +53,26 @@ public class Base3D {
 		oi.rotationAxe(ok, radian);
 		oj.rotationAxe(ok, radian);
 	}
+	
+	/** Change l'echelle en ox */
+	public void scaleX(double rx) {
+		oi.mult(rx);
+	}
+	
+	/** Change l'echelle en oy */
+	public void scaleY(double ry) {
+		oj.mult(ry);
+	}
+	
+	/** Change l'echelle en oz */
+	public void scaleZ(double rz) {
+		ok.mult(rz);
+	}
+	
+	/** Change l'echelle sur les trois axes */
+	public void scale(double r) {
+		scaleX(r);
+		scaleY(r);
+		scaleZ(r);
+	}
 }
