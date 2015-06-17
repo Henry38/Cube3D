@@ -3,6 +3,7 @@ package application;
 import geometry.Shape3D;
 import geometry.Triangle;
 
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class ObjReader {
 		String line = "";
 		String[] tab;
 		String[] param1, param2, param3;
-		double x, y, z, u, v, nx, ny, nz;
+		double x, y, z, u, v, nx, ny, nz, dx, dy, dz;
 		
 		Point3D point1, point2, point3;
 //		Coord coord1, coord2, coord3;
@@ -92,9 +93,13 @@ public class ObjReader {
 						normale2 = listNormale.get(Integer.parseInt(param2[2])-1);
 						normale3 = listNormale.get(Integer.parseInt(param3[2])-1);
 						
-						triangle = new Triangle(point1, point2, point3);
+						dx = (normale1.getDx() + normale2.getDx() + normale3.getDx()) / 3.0;
+						dy = (normale1.getDy() + normale2.getDy() + normale3.getDy()) / 3.0;
+						dz = (normale1.getDz() + normale2.getDz() + normale3.getDz()) / 3.0;
+						
+						triangle = new Triangle(point1, point2, point3, new Color(0, 0, 255));
 //						triangle.setCoord(coord1, coord2, coord3);
-						triangle.setNormale(normale1, normale2, normale3);
+						triangle.setNormale(new Vecteur3D(dx, dy, dz));
 						
 						shape.addTriangle(triangle);
 					}

@@ -3,6 +3,7 @@ package math;
 public class Viewport {
 	
 	private int x, y, width, height;
+	private int near, far;
 	
 	/** Constructeur */
 	public Viewport() {
@@ -10,6 +11,8 @@ public class Viewport {
 		this.y = 0;
 		this.width = 0;
 		this.height = 0;
+		this.near = -1;
+		this.far = 1;
 	}
 	
 	/** Constructeur */
@@ -38,5 +41,19 @@ public class Viewport {
 	/** Retourne la hauteur du viewport */
 	public int getHeight() {
 		return height;
+	}
+	
+	public Mat4 screenMat() {
+		int w = getWidth();
+		int h = getHeight();
+		int n = near;
+		int f = far;
+		Mat4 m = new Mat4(new double[][] {
+				{w/2,   0,       0,   x+w/2},
+				{  0, h/2,       0,   y+h/2},
+				{  0,   0, (f-n)/2, (f+n)/2},
+				{  0,   0,       0,       1}
+		});
+		return m;
 	}
 }

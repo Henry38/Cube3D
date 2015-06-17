@@ -97,10 +97,9 @@ public class StlReader {
 					z = Double.parseDouble(tab[9]);
 					point3 = new Point3D(x, y, z);
 					
-					triangle = new Triangle(point1, point2, point3);
+					triangle = new Triangle(point1, point2, point3, new Color(0, 0, 255));
 					triangle.setNormale(vect);
 					triangle.setCoord(new Coord(0, 0), new Coord(1, 0), new Coord(0, 1));
-					triangle.setColor(Color.red);
 					shape.addTriangle(triangle);
 				}
 			}

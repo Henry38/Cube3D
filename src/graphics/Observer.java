@@ -14,12 +14,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 import math.*;
@@ -34,8 +31,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private Camera camera;
 	private Viewport viewport;
 	
-	Mat4 modelMat, viewMat, projMat, normalMat;
-	Light light;
+	Mat4 modelMat, viewMat, projMat, screenMat, normalMat;
 	
 	private BufferedImage image, texture;
 	private WritableRaster raster;
@@ -43,8 +39,8 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private int[] colorBuffer;
 	private double[] zBuffer;
 	
-	private Color color;
 	private int viewportWidth, viewportHeight;
+	private int textureWidth, textureHeight;
 	private int posX, posY, decalX, decalY;
 	private int eventButton;
 	
@@ -63,8 +59,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		this.colorBuffer = new int[width * height * 3];
 		this.zBuffer = new double[width * height];
-		
-		this.color = new Color(0, 0, 0);
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -90,7 +84,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		viewMat = camera.viewMat();
 		projMat = camera.projMat();
-		light = world.getLight();
+		screenMat = viewport.screenMat();
 		
 		for (Shape3D shape : world.getlistShape()) {
 			drawShape3D(shape);
@@ -101,11 +95,11 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 //		drawLine3D(world.getOrigine(), new Point3D(8, 0, 0));
 		
 		//Draw center
-		color = Color.cyan;
+		Color color = Color.cyan;
 		Point3D center = camera.getObserver();
-		drawLine3D(new Point3D(0, 0, 0), new Point3D(center.getX(), 0, 0));
-		drawLine3D(new Point3D(center.getX(), 0, 0), new Point3D(center.getX(), center.getY(), 0));
-		drawLine3D(new Point3D(center.getX(), center.getY(), 0), new Point3D(center.getX(), center.getY(), center.getZ()));
+//		drawLine3D(new Point3D(0, 0, 0), new Point3D(center.getX(), 0, 0), color);
+//		drawLine3D(new Point3D(center.getX(), 0, 0), new Point3D(center.getX(), center.getY(), 0), color);
+		drawLine3D(new Point3D(center.getX(), center.getY(), 0), new Point3D(center.getX(), center.getY(), center.getZ()), color);
 		
 		raster.setPixels(0, 0, viewportWidth, viewportHeight, colorBuffer);
 		g.drawImage(image, 0, 0, null);
@@ -312,7 +306,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		return listCell;
 	}
 	
-	/** Retourne les coordonnees homogenes dans le repere camera du point definit dans le repere World */
+	/** Retourne les coordonnees homogenes dans le repere camera du point defini dans le repere World */
 	private Vec4 getProjectivePoint3D(Point3D point) {
 		Vec4 p = new Vec4(point);
 		return projMat.mult(viewMat.mult(modelMat.mult(p)));
@@ -325,41 +319,46 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	}
 	
 	/** Retourne la projection fenetre du point normalize dans le repere camera */
-	private Point3D getWindowScreenPoint3D(Point3D point) {
-		int x = (int) ((viewportWidth/2.0) * (point.getX()) + viewport.getX() + (viewportWidth/2.0));
-		int y = (int) ((viewportHeight/2.0) * (point.getY()) + viewport.getY() + (viewportHeight/2.0));
-		int z = (int) (((camera.getZFar()-camera.getZNear())/2.0)*point.getZ() + ((camera.getZFar()+camera.getZNear())/2.0));
-		return new Point3D(x, y, z);
+	private Point3D getWindowScreenPoint3D(Vec4 point) {
+		Vec4 p = screenMat.mult(point);
+//		int x = (int) ((viewportWidth/2.0) * (point.getX()) + viewport.getX() + (viewportWidth/2.0));
+//		int y = (int) ((viewportHeight/2.0) * (point.getY()) + viewport.getY() + (viewportHeight/2.0));
+//		int z = (int) (((camera.getZFar()-camera.getZNear())/2.0)*point.getZ() + ((camera.getZFar()+camera.getZNear())/2.0));
+		return new Point3D(p.getX(), p.getY(), p.getZ());
 	}
 	
 	
 	
 	/** Dessine un point defini dans le repere World */
 	private void drawPoint3D(Graphics g, Point3D point) {
-		Vec4 proj_p = getProjectivePoint3D(point);
-		Point3D p = getWindowScreenPoint3D(proj_p.normalized());
+		Vec4 proj_p = getProjectivePoint3D(point).normalized();
+		Point3D p = getWindowScreenPoint3D(proj_p);
 		int x = (int) p.getX();
 		int y = (int) p.getY();
 		
 		int index;
 		if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
 			index = ((y * viewportWidth) + x) * 3;
-			colorBuffer[index + 0] = color.getRed();
-			colorBuffer[index + 1] = color.getGreen();
-			colorBuffer[index + 2] = color.getBlue();
+//			colorBuffer[index + 0] = color.getRed();
+//			colorBuffer[index + 1] = color.getGreen();
+//			colorBuffer[index + 2] = color.getBlue();
 		}
 	}
 	
 	/** Dessine une droite entre deux points du repere World */
-	private void drawLine3D(Point3D point1, Point3D point2) {
+	private void drawLine3D(Point3D point1, Point3D point2, Color color) {
 		modelMat = new Mat4();
 		Vec4 proj_p1 = getProjectivePoint3D(point1);
 		Vec4 proj_p2 = getProjectivePoint3D(point2);
 		
 		// Si la ligne en entierement dans le volume regarde
 		if (onViewVolume(proj_p1) && onViewVolume(proj_p2)) {
-			Point3D screenP1 = getWindowScreenPoint3D(proj_p1.normalized());
-			Point3D screenP2 = getWindowScreenPoint3D(proj_p2.normalized());
+			
+			Vec4 ndcP1 = proj_p1.normalized();
+			Vec4 ndcP2 = proj_p2.normalized();
+			
+			Point3D screenP1 = getWindowScreenPoint3D(ndcP1);
+			Point3D screenP2 = getWindowScreenPoint3D(ndcP2);
 			
 			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
 			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
@@ -379,39 +378,42 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		}
 	}
 	
+	/** Dessine le triangle en wireframe */
 	private void drawEdgeTriangle(Triangle triangle) {
-		drawLine3D(triangle.getP1(), triangle.getP2());
-		drawLine3D(triangle.getP2(), triangle.getP3());
-		drawLine3D(triangle.getP3(), triangle.getP1());
+		Color color = triangle.getColor();
+		drawLine3D(triangle.getP1(), triangle.getP2(), color);
+		drawLine3D(triangle.getP2(), triangle.getP3(), color);
+		drawLine3D(triangle.getP3(), triangle.getP1(), color);
 	}
 	
-	/** Dessine le triangle definis par trois points du repere World */
+	/** Dessine le triangle defini par trois points du repere World */
 	private void drawTriangle(Triangle triangle) {
-		Vec4 proj_p1 = getProjectivePoint3D(triangle.getP1());
+		Point3D pp1 = triangle.getP1();
+		Point3D pp2 = triangle.getP2();
+		Point3D pp3 = triangle.getP3();
+		double minY = Math.min(pp1.getY(), Math.min(pp2.getY(), pp3.getY()));
+		double maxY = Math.max(pp1.getY(), Math.max(pp2.getY(), pp3.getY()));
+		double minZ = Math.min(pp1.getZ(), Math.min(pp2.getZ(), pp3.getZ()));
+		double maxZ = Math.max(pp1.getZ(), Math.max(pp2.getZ(), pp3.getZ()));
+		
+		Vec4 proj_p1 = getProjectivePoint3D(triangle.getP1());	// Coordonnees clippees
 		Vec4 proj_p2 = getProjectivePoint3D(triangle.getP2());
 		Vec4 proj_p3 = getProjectivePoint3D(triangle.getP3());
 		
 		// Si le triangle est entierement dans le volume regarde
 		if (onViewVolume(proj_p1) && onViewVolume(proj_p2) && onViewVolume(proj_p3)) {
 			
-			Point3D ndcP1 = proj_p1.normalized();	// Normalized coordonnees
-			Point3D ndcP2 = proj_p2.normalized();
-			Point3D ndcP3 = proj_p3.normalized();
+			Vec4 ndcP1 = proj_p1.normalized();	// Coordonnees normalisees
+			Vec4 ndcP2 = proj_p2.normalized();
+			Vec4 ndcP3 = proj_p3.normalized();
 			
-			Point3D screenP1 = getWindowScreenPoint3D(ndcP1);
+			Point3D screenP1 = getWindowScreenPoint3D(ndcP1);	// Coordonnees ecran (pixelisees)
 			Point3D screenP2 = getWindowScreenPoint3D(ndcP2);
 			Point3D screenP3 = getWindowScreenPoint3D(ndcP3);
 			
 			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
 			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
 			Point2D p3 = new Point2D((int)screenP3.getX(), (int)screenP3.getY());
-			
-			ArrayList<Cell> hash;
-			if (Point2D.oriented2d(p1, p2, p3)) {
-				hash = getHash(p1, p3, p2);
-			} else {
-				hash = getHash(p1, p2, p3);
-			}
 			
 			ArrayList<Cell> listCell;
 			if (Point2D.oriented2d(p1, p2, p3)) {
@@ -421,25 +423,34 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			}
 			
 			//Coord[] listCoord = triangle.getListCoord();
-			int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
+			Coord[] listCoord = new Coord[] {
+					new Coord((pp1.getY()-minY)/(maxY-minY), (pp1.getZ()-minZ)/(maxZ-minZ)),
+					new Coord((pp2.getY()-minY)/(maxY-minY), (pp2.getZ()-minZ)/(maxZ-minZ)),
+					new Coord((pp3.getY()-minY)/(maxY-minY), (pp3.getZ()-minZ)/(maxZ-minZ))
+			};
+			int minY1 = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
 			int y, index;
 			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
 			double u, v, z;
 			double area1, area2, area3, d, h;
 			
-			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormale1())).toVecteur3D();
-			double cos = -Vecteur3D.cosinus(light.getDirection(), n);
-//			int r = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
-//			int g = (int) Math.max(0, Math.min(0 + 200 * cos, 255));
-//			int b = (int) Math.max(0, Math.min(255 + 200 * cos, 255));
-			int r = color.getRed();
-			int g = color.getGreen();
-			int b = color.getBlue();
+			Light light = world.getLight();
+			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormale())).toVecteur3D();
+			double cos = (light != null ? -Vecteur3D.cosinus(light.getDirection(), n) : 0);
+			Color lightColor = (light != null ? light.getColor() : new Color(0, 0, 0));
+			Color triangleColor = triangle.getColor();
+			
+			int r = (int) Math.max(0, Math.min(triangleColor.getRed() + lightColor.getRed() * cos, 255));
+			int g = (int) Math.max(0, Math.min(triangleColor.getGreen() + lightColor.getGreen() * cos, 255));
+			int b = (int) Math.max(0, Math.min(triangleColor.getBlue() + lightColor.getBlue() * cos, 255));
+//			int r = color.getRed();
+//			int g = color.getGreen();
+//			int b = color.getBlue();
 			
 			Cell c;
 			for (int k = 0; k < listCell.size(); k++) {
 				c = listCell.get(k);
-				y = minY + k;
+				y = minY1 + k;
 				for (int x = c.x1; x <= c.x2; x++) {
 					if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
 		    			index = ((y * viewportWidth) + x) * 3;
@@ -456,31 +467,37 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		    			
 		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());
 		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
+		    			z3 = (area3 / d) * (ndcP3.getZ() / proj_p3.getW());
+		    			
+		    			u1 = (area1 / d) * (listCoord[0].getU() / proj_p1.getW());	// u / w
+		    			v1 = (area1 / d) * (listCoord[0].getV() / proj_p1.getW());	// v / w
+		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());		// z
+		    			
+		    			u2 = (area2 / d) * (listCoord[1].getU() / proj_p2.getW());
+		    			v2 = (area2 / d) * (listCoord[1].getV() / proj_p2.getW());
+		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
+		    			
+		    			u3 = (area3 / d) * (listCoord[2].getU() / proj_p3.getW());
+		    			v3 = (area3 / d) * (listCoord[2].getV() / proj_p3.getW());
 		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
 		    			
-//		    			u1 = (area1 / d) * (listCoord[0].getX() / proj_p1.getW());	// u / w
-//		    			v1 = (area1 / d) * (listCoord[0].getY() / proj_p1.getW());	// v / w
-//		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());		// z
-//		    			
-//		    			u2 = (area2 / d) * (listCoord[1].getX() / proj_p2.getW());
-//		    			v2 = (area2 / d) * (listCoord[1].getY() / proj_p2.getW());
-//		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
-//		    			
-//		    			u3 = (area3 / d) * (listCoord[2].getX() / proj_p3.getW());
-//		    			v3 = (area3 / d) * (listCoord[2].getY() / proj_p3.getW());
-//		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
-		    			
-//		    			u = (u1 + u2 + u3) / h;
-//		    			v = (v1 + v2 + v3) / h;
+		    			u = (u1 + u2 + u3) / h;
+		    			v = (v1 + v2 + v3) / h;
 		    			z = (z1 + z2 + z3) / h;
+		    			
+		    			if (texture != null) {
+		    				Color localColor = new Color(texture.getRGB((int)(u*textureWidth), (int)(v*textureHeight)));
+		    				r = localColor.getRed();
+		    				g = localColor.getGreen();
+		    				b = localColor.getBlue();
+		    			}
 		    			
 		    			if (z < zBuffer[(y * viewportWidth) + x]) {
 		    				zBuffer[(y * viewportWidth) + x] = z;
 		    				
-		    				//color = new Color(texture.getRGB((int)(u*255), (int)(v*255)));
-		    				colorBuffer[index + 0] = r;//color.getRed();
-		    				colorBuffer[index + 1] = g;//color.getGreen();
-		    				colorBuffer[index + 2] = b;//color.getBlue();
+		    				colorBuffer[index + 0] = r;
+		    				colorBuffer[index + 1] = g;
+		    				colorBuffer[index + 2] = b;
 		    			}
 					}
 				}
@@ -492,14 +509,16 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private void drawShape3D(Shape3D shape) {
 		modelMat = shape.modelMat();
 		normalMat = camera.normalMat(modelMat, viewMat);
-		try {
-			texture = shape.getTexture();
-		} catch (IOException e) {
-			e.printStackTrace();
-			texture = null;
+		texture = shape.getTexture();
+		if (texture != null) {
+			textureWidth = texture.getWidth()-1;
+			textureHeight = texture.getHeight()-1;
+		} else {
+			textureWidth = 0;
+			textureHeight = 0;
 		}
 		
-		Point3D p;
+		Vec4 p;
 		Point3D eye = camera.getOrigine();
 		Vecteur3D vision = new Vecteur3D(0, 0, 0);
 		Vecteur3D normale;
@@ -509,11 +528,10 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			vision.setDx(p.getX() - eye.getX());
 			vision.setDy(p.getY() - eye.getY());
 			vision.setDz(p.getZ() - eye.getZ());
-			normale = modelMat.mult(new Vec4(triangle.getNormale1())).toVecteur3D();
+			normale = modelMat.mult(new Vec4(triangle.getNormale())).toVecteur3D();
 			
 			// Back face culling
 			if (Vecteur3D.produit_scalaire(vision, normale) < 0) {
-				color = triangle.getColor();
 				//drawEdgeTriangle(triangle);
 				drawTriangle(triangle);
 			}
@@ -524,6 +542,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private void drawRepere(Base3D base) {
 		Point3D origin = base.getOrigine();
 		Point3D p = new Point3D();
+		Color color;
 		
 		for (Vecteur3D vect : base.getVecteurs()) {
 			if (vect == base.oi) {
@@ -541,7 +560,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			p.setY(origin.getY());
 			p.setZ(origin.getZ());
 			p.translation(vect);
-			drawLine3D(origin, p);
+			drawLine3D(origin, p, color);
 		}
 	}
 	

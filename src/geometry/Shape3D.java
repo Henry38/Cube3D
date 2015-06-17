@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import math.Base3D;
 import math.Mat4;
 import math.Point3D;
+import math.Viewport;
 
 public class Shape3D {
 	
@@ -17,19 +18,19 @@ public class Shape3D {
 	private Base3D base;
 	private ArrayList<Triangle> listTriangle;
 	private String pathTexture;
-	
-	/** Construteur */
-	public Shape3D(Shape3D parent) {
-		this.parent = parent;
-		this.pathTexture = "./image/cube2.jpg";
-	}
+	public Viewport viewport;
 	
 	/** Constructeur */
 	public Shape3D(Shape3D parent, double x, double y, double z) {
 		this.parent = parent;
 		this.base = new Base3D(new Point3D(x, y, z));
 		this.listTriangle = new ArrayList<Triangle>();
-		this.pathTexture = "./image/cube2.jpg";
+		this.pathTexture = "";
+	}
+	
+	/** Construteur */
+	public Shape3D(Shape3D parent) {
+		this(parent, 0, 0, 0);
 	}
 	
 	/** Retourne la base de la shape3D */
@@ -50,8 +51,18 @@ public class Shape3D {
 		return parent.modelMat().mult(new Mat4(getBase()));
 	}
 	
-	public BufferedImage getTexture() throws IOException {
-		return ImageIO.read(new File(pathTexture));
+	/** Retourne l'image utilisee pour la texture */
+	public BufferedImage getTexture() {
+		if (pathTexture.equals("")) {
+			return null;
+		}
+		BufferedImage texture = null;
+		try {
+			texture = ImageIO.read(new File(pathTexture));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return texture;
 	}
 	
 	/** Ajoute le triangle a la shape3D */

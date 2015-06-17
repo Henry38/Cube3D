@@ -9,6 +9,11 @@ public class Vec4 {
 		this.matrix = new double[] {0, 0, 0, 1};
 	}
 	
+	/** Constructeur */
+	public Vec4(double x, double y, double z, double w) {
+		this.matrix = new double[] {x, y, z, w};
+	}
+	
 	public Vec4(Point3D point) {
 		this.matrix = new double[] {point.getX(), point.getY(), point.getZ(), 1};
 	}
@@ -55,14 +60,14 @@ public class Vec4 {
 		set(3, 1);
 	}
 	
-	public Point3D normalized() {
+	public Vec4 normalized() {
 		if (Math.abs(getW()) < 0.0001) {
 			throw new ArithmeticException("Coordonnees homogenes : division par 0");
 		}
 		double x = getX() / getW();
 		double y = getY() / getW();
 		double z = getZ() / getW();
-		return new Point3D(x, y, z);
+		return new Vec4(x, y, z, 1);
 	}
 	
 	public Vecteur3D toVecteur3D() {

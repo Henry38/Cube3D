@@ -21,7 +21,7 @@ public class Camera {
 		this.pointObserver = pointObserver;
 		this.projection = projection;
 		this.zNear = 1;
-		this.zFar = 60;
+		this.zFar = 20;
 		this.uMin = -1;
 		this.uMax = 1;
 		this.vMin = -1;

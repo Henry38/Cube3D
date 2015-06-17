@@ -8,10 +8,11 @@ import math.Vecteur3D;
 public class Triangle {
 	
 	private Point3D p1, p2, p3;
-	private Color color1, color2, color3;
+	private Color color;
 	private Coord coord1, coord2, coord3;
-	private Vecteur3D normale1, normale2, normale3;
+	private Vecteur3D normale;
 	
+	/** Constructeur */
 	public Triangle(Point3D p1, Point3D p2, Point3D p3) {
 		this.p1 = p1;
 		this.p2 = p2;
@@ -21,8 +22,18 @@ public class Triangle {
 		setNormale(null);
 	}
 	
+	/** Constructeur */
+	public Triangle(Point3D p1, Point3D p2, Point3D p3, Color color) {
+		this.p1 = p1;
+		this.p2 = p2;
+		this.p3 = p3;
+		setColor(color);
+		setCoord(new Coord(), new Coord(), new Coord());
+		setNormale(null);
+	}
+	
 	public Color getColor() {
-		return color1;
+		return color;
 	}
 	
 	public Point3D getP1() {
@@ -37,40 +48,16 @@ public class Triangle {
 		return p3;
 	}
 	
-	public Vecteur3D getNormale1() {
-		return normale1;
-	}
-	
-	public Vecteur3D getNormale2() {
-		return normale2;
-	}
-	
-	public Vecteur3D getNormale3() {
-		return normale3;
-	}
-	
-	public final Color[] getListColor() {
-		return new Color[] {color1, color2, color3};
+	public Vecteur3D getNormale() {
+		return normale;
 	}
 	
 	public final Coord[] getListCoord() {
 		return new Coord[] {coord1, coord2, coord3};
 	}
 	
-	public final Vecteur3D[] getNormale() {
-		return new Vecteur3D[] {normale1, normale2, normale3};
-	}
-	
 	public void setColor(Color color) {
-		this.color1 = color;
-		this.color2 = color;
-		this.color3 = color;
-	}
-	
-	public void setColor(Color color1, Color color2, Color color3) {
-		this.color1 = color1;
-		this.color2 = color2;
-		this.color3 = color3;
+		this.color = color;
 	}
 	
 	public void setCoord(Coord coord1, Coord coord2, Coord coord3) {
@@ -80,15 +67,7 @@ public class Triangle {
 	}
 	
 	public void setNormale(Vecteur3D normale) {
-		this.normale1 = normale;
-		this.normale2 = normale;
-		this.normale3 = normale;
-	}
-	
-	public void setNormale(Vecteur3D normale1, Vecteur3D normale2, Vecteur3D normale3) {
-		this.normale1 = normale1;
-		this.normale2 = normale2;
-		this.normale3 = normale3;
+		this.normale = normale;
 	}
 	
 //	public double area() {

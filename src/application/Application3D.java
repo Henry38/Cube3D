@@ -1,6 +1,7 @@
 package application;
 
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -49,12 +50,12 @@ public class Application3D extends Thread {
 		JFrame frame = new JFrame("3D Application");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent arg0) {}
+			public void keyTyped(KeyEvent ev) {}
 			
-			public void keyReleased(KeyEvent arg0) {}
+			public void keyReleased(KeyEvent ev) {}
 			
-			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			public void keyPressed(KeyEvent ev) {
+				if (ev.getKeyCode() == KeyEvent.VK_ESCAPE) {
 					frame.dispose();
 					System.exit(0);
 				}
@@ -68,22 +69,27 @@ public class Application3D extends Thread {
 		
 		// Creation des objets du monde
 		Light light = new Light(new Point3D(10, 10, 10), new Vecteur3D(-1, -1, -1));
-		Cube cube1 = new Cube(null, 0, 0, 0);
-		Shape3D teapot = objReader.getShape("teapot.obj");
+		light.setColor(new Color(200, 200, 200));
 		Shape3D piece = stlReader.getShape("reine.stl");
+		Shape3D teapot = objReader.getShape("teapot.obj");
+		Cube cube1 = new Cube(null, 0, 0, 0);
+		cube1.setTexture("./image/texture.png");
+		teapot.setTexture("./image/texture.png");
 		
-		// Transfomration
-		teapot.rotationOx(Math.PI/2);
+		// Transformation
+//		teapot.rotationOx(Math.PI/2);
+//		teapot.rotationOy(Math.PI/2);
+		cube1.translation(0, 2, 0);
+		//cube1.rotationOz(Math.PI/4);
 		
 		// Creation du monde
 		World3D world = new World3D();
 		//world.addShape(piece);
-		//world.addShape(teapot);
+		world.addShape(teapot);
 		world.addShape(cube1);
-		//world.addShape(cube2);
 		world.setLight(light);
 		
-		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(.5, .5, .5), PROJECTION.PERSPECTIVE);
+		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(0, 0, 0), PROJECTION.PERSPECTIVE);
 		//Camera camera1 = new Camera(new Point3D(25, 25, 40), new Point3D(0, 0, 20), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
