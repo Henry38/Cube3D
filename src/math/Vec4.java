@@ -70,6 +70,11 @@ public class Vec4 {
 		return new Vec4(x, y, z, 1);
 	}
 	
+	public Point3D toPoint3D() {
+		double w  = getW();
+		return new Point3D(getX()/w, getY()/w, getZ()/w);
+	}
+	
 	public Vecteur3D toVecteur3D() {
 		return new Vecteur3D(getX(), getY(), getZ());
 	}

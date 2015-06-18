@@ -87,8 +87,10 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		screenMat = viewport.screenMat();
 		
 		for (Shape3D shape : world.getlistShape()) {
+			modelMat = shape.modelMat();
 			drawShape3D(shape);
 		}
+		modelMat = new Mat4();
 		
 		//drawRepere(world.getBase());
 //		g.setColor(Color.red);
@@ -306,7 +308,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		return listCell;
 	}
 	
-	/** Retourne les coordonnees homogenes dans le repere camera du point defini dans le repere World */
+	/** Retourne les coordonnees homogenes du projete du point defini dans le modele */
 	private Vec4 getProjectivePoint3D(Point3D point) {
 		Vec4 p = new Vec4(point);
 		return projMat.mult(viewMat.mult(modelMat.mult(p)));
@@ -321,9 +323,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	/** Retourne la projection fenetre du point normalize dans le repere camera */
 	private Point3D getWindowScreenPoint3D(Vec4 point) {
 		Vec4 p = screenMat.mult(point);
-//		int x = (int) ((viewportWidth/2.0) * (point.getX()) + viewport.getX() + (viewportWidth/2.0));
-//		int y = (int) ((viewportHeight/2.0) * (point.getY()) + viewport.getY() + (viewportHeight/2.0));
-//		int z = (int) (((camera.getZFar()-camera.getZNear())/2.0)*point.getZ() + ((camera.getZFar()+camera.getZNear())/2.0));
 		return new Point3D(p.getX(), p.getY(), p.getZ());
 	}
 	
@@ -347,7 +346,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	/** Dessine une droite entre deux points du repere World */
 	private void drawLine3D(Point3D point1, Point3D point2, Color color) {
-		modelMat = new Mat4();
 		Vec4 proj_p1 = getProjectivePoint3D(point1);
 		Vec4 proj_p2 = getProjectivePoint3D(point2);
 		
@@ -363,6 +361,8 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
 			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
 			
+			double d = Point2D.distance(p1, p2);
+			double h, d1, d2, z1, z2, z;
 			int x, y, index;
 			for (Point2D p : Bresenham2D(p1.getX(), p1.getY(), p2.getX(), p2.getY())) {
 				x = p.getX();
@@ -370,9 +370,25 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 				if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
 					index = ((y * viewportWidth) + x) * 3;
 					
-					colorBuffer[index + 0] = color.getRed();
-					colorBuffer[index + 1] = color.getGreen();
-					colorBuffer[index + 2] = color.getBlue();
+					d1 = Point2D.distance(p1, p);
+					d2 = Point2D.distance(p, p2);
+					
+					h = 0;
+					h += (d1 / d) * (1.0 / proj_p1.getW());
+					h += (d2 / d) * (1.0 / proj_p2.getW());
+					
+					z1 = (d1 / d) * (ndcP1.getZ() / proj_p1.getW());
+	    			z2 = (d2 / d) * (ndcP2.getZ() / proj_p2.getW());
+	    			
+	    			z = (z1 + z2) / h;
+	    			
+	    			if (z < zBuffer[(y * viewportWidth) + x]) {
+	    				zBuffer[(y * viewportWidth) + x] = z;
+	    				
+	    				colorBuffer[index + 0] = color.getRed();
+						colorBuffer[index + 1] = color.getGreen();
+						colorBuffer[index + 2] = color.getBlue();
+	    			}
 				}
 			}
 		}
@@ -388,13 +404,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	/** Dessine le triangle defini par trois points du repere World */
 	private void drawTriangle(Triangle triangle) {
-		Point3D pp1 = triangle.getP1();
-		Point3D pp2 = triangle.getP2();
-		Point3D pp3 = triangle.getP3();
-		double minY = Math.min(pp1.getY(), Math.min(pp2.getY(), pp3.getY()));
-		double maxY = Math.max(pp1.getY(), Math.max(pp2.getY(), pp3.getY()));
-		double minZ = Math.min(pp1.getZ(), Math.min(pp2.getZ(), pp3.getZ()));
-		double maxZ = Math.max(pp1.getZ(), Math.max(pp2.getZ(), pp3.getZ()));
 		
 		Vec4 proj_p1 = getProjectivePoint3D(triangle.getP1());	// Coordonnees clippees
 		Vec4 proj_p2 = getProjectivePoint3D(triangle.getP2());
@@ -422,13 +431,14 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 				listCell = getHash(p1, p2, p3);
 			}
 			
-			//Coord[] listCoord = triangle.getListCoord();
-			Coord[] listCoord = new Coord[] {
-					new Coord((pp1.getY()-minY)/(maxY-minY), (pp1.getZ()-minZ)/(maxZ-minZ)),
-					new Coord((pp2.getY()-minY)/(maxY-minY), (pp2.getZ()-minZ)/(maxZ-minZ)),
-					new Coord((pp3.getY()-minY)/(maxY-minY), (pp3.getZ()-minZ)/(maxZ-minZ))
-			};
-			int minY1 = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
+			Coord[] listCoord = triangle.getListCoord();
+			// Flat Shading
+//			Coord[] listCoord = new Coord[] {
+//					new Coord((pp1.getY()-minY)/(maxY-minY), (pp1.getZ()-minZ)/(maxZ-minZ)),
+//					new Coord((pp2.getY()-minY)/(maxY-minY), (pp2.getZ()-minZ)/(maxZ-minZ)),
+//					new Coord((pp3.getY()-minY)/(maxY-minY), (pp3.getZ()-minZ)/(maxZ-minZ))
+//			};
+			int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
 			int y, index;
 			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
 			double u, v, z;
@@ -450,7 +460,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			Cell c;
 			for (int k = 0; k < listCell.size(); k++) {
 				c = listCell.get(k);
-				y = minY1 + k;
+				y = minY + k;
 				for (int x = c.x1; x <= c.x2; x++) {
 					if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
 		    			index = ((y * viewportWidth) + x) * 3;
@@ -507,7 +517,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	/** Dessine les arêtes de la Shape3D definie dans le repere World */
 	private void drawShape3D(Shape3D shape) {
-		modelMat = shape.modelMat();
 		normalMat = camera.normalMat(modelMat, viewMat);
 		texture = shape.getTexture();
 		if (texture != null) {
@@ -532,8 +541,11 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			
 			// Back face culling
 			if (Vecteur3D.produit_scalaire(vision, normale) < 0) {
-				//drawEdgeTriangle(triangle);
-				drawTriangle(triangle);
+				if (shape.getRenderingMode() == Shape3D.WIREFRAME) {
+					drawEdgeTriangle(triangle);
+				} else {
+					drawTriangle(triangle);
+				}
 			}
 		}
 	}

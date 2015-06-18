@@ -47,7 +47,7 @@ public class Application3D extends Thread {
 		int width = (int) tk.getScreenSize().getWidth();
 		int height = (int) tk.getScreenSize().getHeight();
 		
-		JFrame frame = new JFrame("3D Application");
+		final JFrame frame = new JFrame("3D Application");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent ev) {}
@@ -73,14 +73,14 @@ public class Application3D extends Thread {
 		Shape3D piece = stlReader.getShape("reine.stl");
 		Shape3D teapot = objReader.getShape("teapot.obj");
 		Cube cube1 = new Cube(null, 0, 0, 0);
-		cube1.setTexture("./image/texture.png");
-		teapot.setTexture("./image/texture.png");
+		
+		cube1.setTexture("./image/cube2.jpg");
+		teapot.setRenderingMode(Shape3D.WIREFRAME);
 		
 		// Transformation
-//		teapot.rotationOx(Math.PI/2);
+		teapot.rotationOx(Math.PI/2);
 //		teapot.rotationOy(Math.PI/2);
-		cube1.translation(0, 2, 0);
-		//cube1.rotationOz(Math.PI/4);
+		cube1.translation(0, 1.5, 0);
 		
 		// Creation du monde
 		World3D world = new World3D();

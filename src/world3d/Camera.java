@@ -70,9 +70,6 @@ public class Camera {
 			up.setDy(1);
 			up.setDz(0);
 		}
-		if (Math.abs(Vecteur3D.produit_scalaire(k, up)) > 0.75) {
-			
-		}
 		Vecteur3D u = Vecteur3D.produit_vectoriel(k, up);
 		Vecteur3D v = Vecteur3D.produit_vectoriel(k, u);
 		
@@ -82,39 +79,14 @@ public class Camera {
 		return new Base3D(getOrigine(), u, v, k);
 	}
 	
-	public Mat4 getModel() {
-		Base3D base = getBase();
-		return new Mat4(base);
-//		Point3D origin = base.getOrigine();
-//		Vecteur3D oi = base.oi;
-//		Vecteur3D oj = base.oj;
-//		Vecteur3D ok = base.ok;
-//		Mat4 m = new Mat4(new double[][] {
-//				{oi.getDx(), oj.getDx(), ok.getDx(), origin.getX()},
-//				{oi.getDy(), oj.getDy(), ok.getDy(), origin.getY()},
-//				{oi.getDz(), oj.getDz(), ok.getDz(), origin.getZ()},
-//				{         0,          0,          0,             1}
-//		});
-//		
-//		return m;
-	}
-	
 	/** Recupere la matrice camera */
 	public Mat4 viewMat() {
-		Vecteur3D k = new Vecteur3D(pointCamera, pointObserver);
-		Vecteur3D up = new Vecteur3D(0, 0, 1);
-		if (Vecteur3D.colineaire(k, up)) {
-			up.setDy(1);
-			up.setDz(0);
-		}
-		Vecteur3D u = Vecteur3D.produit_vectoriel(k, up);
-		Vecteur3D v = Vecteur3D.produit_vectoriel(k, u);
+		Base3D base = getBase();
+		Vecteur3D u = base.oi;
+		Vecteur3D v = base.oj;
+		Vecteur3D k = base.ok;
+		Vecteur3D t = new Vecteur3D(base.getOrigine(), new Point3D(0, 0, 0));
 		
-		u.normalized();
-		v.normalized();
-		k.normalized();
-		
-		Vecteur3D t = new Vecteur3D(pointCamera, new Point3D(0, 0, 0));
 		double dx = u.getDx()*t.getDx() + u.getDy()*t.getDy() + u.getDz()*t.getDz();
 		double dy = v.getDx()*t.getDx() + v.getDy()*t.getDy() + v.getDz()*t.getDz();
 		double dz = k.getDx()*t.getDx() + k.getDy()*t.getDy() + k.getDz()*t.getDz();

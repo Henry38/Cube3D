@@ -14,11 +14,15 @@ import math.Viewport;
 
 public class Shape3D {
 	
+	public final static int WIREFRAME = 0;
+	public final static int OPAQUE = 1;
+	
 	private Shape3D parent;
 	private Base3D base;
 	private ArrayList<Triangle> listTriangle;
 	private String pathTexture;
 	public Viewport viewport;
+	private int render;
 	
 	/** Constructeur */
 	public Shape3D(Shape3D parent, double x, double y, double z) {
@@ -26,6 +30,7 @@ public class Shape3D {
 		this.base = new Base3D(new Point3D(x, y, z));
 		this.listTriangle = new ArrayList<Triangle>();
 		this.pathTexture = "";
+		this.render = OPAQUE;
 	}
 	
 	/** Construteur */
@@ -119,5 +124,13 @@ public class Shape3D {
 		scaleX(r);
 		scaleY(r);
 		scaleZ(r);
+	}
+	
+	public void setRenderingMode(int render) {
+		this.render = render;
+	}
+	
+	public int getRenderingMode() {
+		return render;
 	}
 }

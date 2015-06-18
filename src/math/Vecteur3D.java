@@ -177,4 +177,12 @@ public class Vecteur3D {
 		boolean b = Math.abs(vect1.getDy()/vect2.getDy() - vect1.getDz()/vect2.getDz()) < 0.01;
 		return (a && b);
 	}
+	
+	public static Vecteur3D reflect(Vecteur3D e, Vecteur3D normal) {
+		double dot = Vecteur3D.produit_scalaire(e, normal);
+		double dx = e.getDx() - 2 * dot * normal.getDx();
+		double dy = e.getDy() - 2 * dot * normal.getDy();
+		double dz = e.getDz() - 2 * dot * normal.getDz();
+		return new Vecteur3D(dx, dy, dz);
+	}
 }
