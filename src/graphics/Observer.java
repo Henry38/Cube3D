@@ -453,9 +453,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			int r = (int) Math.max(0, Math.min(triangleColor.getRed() + lightColor.getRed() * cos, 255));
 			int g = (int) Math.max(0, Math.min(triangleColor.getGreen() + lightColor.getGreen() * cos, 255));
 			int b = (int) Math.max(0, Math.min(triangleColor.getBlue() + lightColor.getBlue() * cos, 255));
-//			int r = color.getRed();
-//			int g = color.getGreen();
-//			int b = color.getBlue();
 			
 			Cell c;
 			for (int k = 0; k < listCell.size(); k++) {

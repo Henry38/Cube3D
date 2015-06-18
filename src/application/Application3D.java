@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -70,26 +72,28 @@ public class Application3D extends Thread {
 		// Creation des objets du monde
 		Light light = new Light(new Point3D(10, 10, 10), new Vecteur3D(-1, -1, -1));
 		light.setColor(new Color(200, 200, 200));
-		Shape3D piece = stlReader.getShape("reine.stl");
-		Shape3D teapot = objReader.getShape("teapot.obj");
-		Cube cube1 = new Cube(null, 0, 0, 0);
+		//Shape3D piece = stlReader.getShape("reine.stl");
 		
-		cube1.setTexture("./image/cube2.jpg");
+		Shape3D teapot = objReader.getShape("teapot.obj");
+//		Cube cube1 = new Cube(null, 0, 0, 0);
+//		cube1.setRenderingMode(Shape3D.WIREFRAME);
+//		
+//		cube1.setTexture("./image/cube2.jpg");
 		teapot.setRenderingMode(Shape3D.WIREFRAME);
 		
 		// Transformation
 		teapot.rotationOx(Math.PI/2);
 //		teapot.rotationOy(Math.PI/2);
-		cube1.translation(0, 1.5, 0);
+//		cube1.translation(0, 2, 0);
 		
 		// Creation du monde
 		World3D world = new World3D();
-		//world.addShape(piece);
+//		world.addShape(piece);
 		world.addShape(teapot);
-		world.addShape(cube1);
+//		world.addShape(cube1);
 		world.setLight(light);
 		
-		Camera camera1 = new Camera(new Point3D(2, 2, 2), new Point3D(0, 0, 0), PROJECTION.PERSPECTIVE);
+		Camera camera1 = new Camera(new Point3D(2, 2, 1), new Point3D(0, 0, 0), PROJECTION.PERSPECTIVE);
 		//Camera camera1 = new Camera(new Point3D(25, 25, 40), new Point3D(0, 0, 20), PROJECTION.PERSPECTIVE);
 		//Camera camera2 = new Camera(new Point3D(-2, -2, 2), new Point3D(0.5, 0.5, 0.5), PROJECTION.ORTHOGRAPHIC);
 		
