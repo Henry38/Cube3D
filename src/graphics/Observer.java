@@ -31,7 +31,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private Camera camera;
 	private Viewport viewport;
 	
-	Mat4 modelMat, viewMat, projMat, screenMat;
+	Mat4 modelMat, viewMat, projMat, projViewModelMat, screenMat;
 	
 	private BufferedImage image, texture;
 	private WritableRaster raster;
@@ -88,9 +88,11 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		
 		for (Shape3D shape : world.getlistShape()) {
 			modelMat = shape.modelMat();
+			projViewModelMat = projMat.mult(viewMat).mult(modelMat);
 			drawShape3D(shape);
 		}
 		modelMat = new Mat4();
+		projViewModelMat = projMat.mult(viewMat).mult(modelMat);
 		
 		//drawRepere(world.getBase());
 //		g.setColor(Color.red);
@@ -311,7 +313,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	/** Retourne les coordonnees homogenes du projete du point defini dans le modele */
 	private Vec4 getProjectivePoint3D(Point3D point) {
 		Vec4 p = new Vec4(point);
-		return projMat.mult(viewMat.mult(modelMat.mult(p)));
+		return projViewModelMat.mult(p);
 	}
 	
 	/** Retourne vrai si le point en coordonnees homogene est dans le volume regarde */
@@ -432,41 +434,40 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			}
 			
 			
-			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormal())).toVecteur3D();
-			Vecteur3D n1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getNormal()))).toVecteur3D();
-			n1.normalized();
+//			Vecteur3D n1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getNormal()))).toVecteur3D();
+//			n1.normalized();
+//			
+//			Point3D pp1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP1()))).toPoint3D();
+//			Point3D pp2 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP2()))).toPoint3D();
+//			Point3D pp3 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP3()))).toPoint3D();
+//			
+//			Vecteur3D vp1 = new Vecteur3D(new Point3D(), pp1);
+//			vp1.normalized();
+//			Vecteur3D vp2 = new Vecteur3D(new Point3D(), pp2);
+//			vp2.normalized();
+//			Vecteur3D vp3 = new Vecteur3D(new Point3D(), pp3);
+//			vp3.normalized();
+//			
+//			Vecteur3D r1 = Vecteur3D.reflect(vp1, n1);
+//			Vecteur3D r2 = Vecteur3D.reflect(vp2, n1);
+//			Vecteur3D r3 = Vecteur3D.reflect(vp3, n1);
+//			
+//			double au1 = (Math.atan2(r1.getDx(), r1.getDz()) + Math.PI) / (2*Math.PI);
+//			double av1 = Math.acos(r1.getDy()) / Math.PI;
+//			
+//			double au2 = (Math.atan2(r2.getDx(), r2.getDz()) + Math.PI) / (2*Math.PI);
+//			double av2 = Math.acos(r2.getDy()) / Math.PI;
+//			
+//			double au3 = (Math.atan2(r3.getDx(), r3.getDz()) + Math.PI) / (2*Math.PI);
+//			double av3 = Math.acos(r3.getDy()) / Math.PI;
+//			
+//			Coord[] listCoord = new Coord[] {
+//					new Coord(au1, av1),
+//					new Coord(au2, av2),
+//					new Coord(au3, av3)
+//			};
 			
-			Point3D pp1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP1()))).toPoint3D();
-			Point3D pp2 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP2()))).toPoint3D();
-			Point3D pp3 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP3()))).toPoint3D();
-			
-			Vecteur3D vp1 = new Vecteur3D(new Point3D(), pp1);
-			vp1.normalized();
-			Vecteur3D vp2 = new Vecteur3D(new Point3D(), pp2);
-			vp2.normalized();
-			Vecteur3D vp3 = new Vecteur3D(new Point3D(), pp3);
-			vp3.normalized();
-			
-			Vecteur3D r1 = Vecteur3D.reflect(vp1, n1);
-			Vecteur3D r2 = Vecteur3D.reflect(vp2, n1);
-			Vecteur3D r3 = Vecteur3D.reflect(vp3, n1);
-			
-			double au1 = (Math.atan2(r1.getDx(), r1.getDz()) + Math.PI) / (2*Math.PI);
-			double av1 = Math.acos(r1.getDy()) / Math.PI;
-			
-			double au2 = (Math.atan2(r2.getDx(), r2.getDz()) + Math.PI) / (2*Math.PI);
-			double av2 = Math.acos(r2.getDy()) / Math.PI;
-			
-			double au3 = (Math.atan2(r3.getDx(), r3.getDz()) + Math.PI) / (2*Math.PI);
-			double av3 = Math.acos(r3.getDy()) / Math.PI;
-			
-			Coord[] listCoord = new Coord[] {
-					new Coord(au1, av1),
-					new Coord(au2, av2),
-					new Coord(au3, av3)
-			};
-			
-//			Coord[] listCoord = triangle.getListCoord();
+			Coord[] listCoord = triangle.getListCoord();
 			// Flat Shading
 //			Coord[] listCoord = new Coord[] {
 //					new Coord((pp1.getY()-minY)/(maxY-minY), (pp1.getZ()-minZ)/(maxZ-minZ)),
@@ -480,7 +481,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			double area1, area2, area3, d, h;
 			
 			Light light = world.getLight();
-//			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormale())).toVecteur3D();
+			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormal())).toVecteur3D();
 			double cos = (light != null ? -Vecteur3D.cosinus(light.getDirection(), n) : 0);
 			Color lightColor = (light != null ? light.getColor() : new Color(0, 0, 0));
 			Color triangleColor = triangle.getColor();
@@ -506,10 +507,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		    			h += (area1 / d) * (1.0 / proj_p1.getW());	// 1 / w
 		    			h += (area2 / d) * (1.0 / proj_p2.getW());
 		    			h += (area3 / d) * (1.0 / proj_p3.getW());
-		    			
-		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());
-		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
-		    			z3 = (area3 / d) * (ndcP3.getZ() / proj_p3.getW());
 		    			
 		    			u1 = (area1 / d) * (listCoord[0].getU() / proj_p1.getW());	// u / w
 		    			v1 = (area1 / d) * (listCoord[0].getV() / proj_p1.getW());	// v / w
