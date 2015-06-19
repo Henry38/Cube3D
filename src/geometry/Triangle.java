@@ -1,8 +1,11 @@
 package geometry;
 
 import java.awt.Color;
+
 import math.Coord;
+import math.Mat4;
 import math.Point3D;
+import math.Vec4;
 import math.Vecteur3D;
 
 public class Triangle {
@@ -10,7 +13,7 @@ public class Triangle {
 	private Point3D p1, p2, p3;
 	private Color color;
 	private Coord coord1, coord2, coord3;
-	private Vecteur3D normale;
+	private Vecteur3D normal;
 	
 	/** Constructeur */
 	public Triangle(Point3D p1, Point3D p2, Point3D p3) {
@@ -19,7 +22,7 @@ public class Triangle {
 		this.p3 = p3;
 		setColor(Color.white);
 		setCoord(new Coord(), new Coord(), new Coord());
-		setNormale(null);
+		setNormal(null);
 	}
 	
 	/** Constructeur */
@@ -29,7 +32,7 @@ public class Triangle {
 		this.p3 = p3;
 		setColor(color);
 		setCoord(new Coord(), new Coord(), new Coord());
-		setNormale(null);
+		setNormal(null);
 	}
 	
 	public Color getColor() {
@@ -48,8 +51,8 @@ public class Triangle {
 		return p3;
 	}
 	
-	public Vecteur3D getNormale() {
-		return normale;
+	public Vecteur3D getNormal() {
+		return normal;
 	}
 	
 	public final Coord[] getListCoord() {
@@ -66,8 +69,8 @@ public class Triangle {
 		this.coord3 = coord3;
 	}
 	
-	public void setNormale(Vecteur3D normale) {
-		this.normale = normale;
+	public void setNormal(Vecteur3D normal) {
+		this.normal = normal;
 	}
 	
 //	public double area() {
