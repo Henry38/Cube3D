@@ -28,10 +28,12 @@ public class Camera {
 		this.vMax = 1;
 	}
 	
+	/** Retourne l'origine de la camera */
 	public final Point3D getOrigine() {
 		return pointCamera;
 	}
 	
+	/** Retourne le point regarder */
 	public final Point3D getObserver() {
 		return pointObserver;
 	}
@@ -58,11 +60,13 @@ public class Camera {
 		pointObserver.setZ(z);
 	}
 	
+	/** Translate la camera */
 	public void translation(double dx, double dy, double dz) {
 		pointCamera.translation(dx, dy, dz);
 		pointObserver.translation(dx, dy, dz);
 	}
 	
+	/** Retourne le Base3D associee a la camera */
 	public final Base3D getBase() {
 		Vecteur3D k = new Vecteur3D(pointCamera, pointObserver);
 		Vecteur3D up = new Vecteur3D(0, 0, 1);
@@ -100,6 +104,7 @@ public class Camera {
 		return m;
 	}
 	
+	/** Retourne la matrice de projection */
 	public Mat4 projMat() {
 		if (projection == PROJECTION.PERSPECTIVE) {
 			Mat4 m = new Mat4(new double[][] {
@@ -121,20 +126,7 @@ public class Camera {
 	}
 	
 	public Mat4 normalMat(Mat4 modelMat, Mat4 viewMat) {
-		return viewMat.mult(modelMat);
-		// normalMat = transpose(inverse(modelView));
-		//			   (modelView-1)T
-	}
-	
-	public String toString() {
-		Mat4 m = viewMat();
-		String res = "";
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				res += m.get(i, j) + " ";
-			}
-			res += "\n";
-		}
-		return res;
+		return null;
+		// (modelView-1)T = view.model
 	}
 }

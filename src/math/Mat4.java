@@ -24,12 +24,13 @@ public class Mat4 {
 				throw new ArithmeticException("Dimension Mat4 non conforme : " + matrix[i].length + " colonnes");
 			}
 		}
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[i].length; j++) {
-				set(i, j, 0);
+		this.matrix = new double[4][];
+		for (int i = 0; i < 4; i++) {
+			this.matrix[i] = new double[4];
+			for (int j = 0; j < 4; j++) {
+				set(i, j, matrix[i][j]);
 			}
 		}
-		//this.matrix = matrix;
 	}
 	
 	/** Constructeur */

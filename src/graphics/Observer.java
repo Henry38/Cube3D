@@ -558,13 +558,13 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			textureHeight = 0;
 		}
 		
-		Vec4 p;
+		Point3D p;
 		Point3D eye = camera.getOrigine();
 		Vecteur3D vision = new Vecteur3D(0, 0, 0);
 		Vecteur3D normal = null;
 		
 		for (Triangle triangle : shape.getListTriangle()) {
-			p = modelMat.mult(new Vec4(triangle.getP1())).normalized();
+			p = modelMat.mult(new Vec4(triangle.getP1())).toPoint3D();
 			vision.setDx(p.getX() - eye.getX());
 			vision.setDy(p.getY() - eye.getY());
 			vision.setDz(p.getZ() - eye.getZ());
