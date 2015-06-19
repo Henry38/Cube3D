@@ -5,17 +5,24 @@ public class Point3D {
 	private double x, y, z;
 	
 	/** Constructeur */
-	public Point3D() {
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
-	}
-	
-	/** Constructeur */
 	public Point3D(double x, double y, double z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	/** Constructeur */
+	public Point3D(Point3D point) {
+		this.x = point.getX();
+		this.y = point.getY();
+		this.z = point.getZ();
+	}
+	
+	/** Constructeur */
+	public Point3D() {
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
 	}
 	
 	/** Clone et retourne le point */
@@ -58,10 +65,6 @@ public class Point3D {
 		return Math.sqrt(getX()*getX() + getY()*getY() + getZ()*getZ());
 	}
 	
-	public String toString() {
-		return "(" + getX() + ", " + getY() + ", " + getZ() + ")";
-	}
-	
 	/** Translate le point */
 	public void translation(double dx, double dy, double dz) {
 		setX(getX() + dx);
@@ -92,6 +95,11 @@ public class Point3D {
 		setZ(   x * (vect.getDx()*vect.getDz() * (1 - cos) - vect.getDy()*sin) +
 				y * (vect.getDy()*vect.getDz() * (1 - cos) + vect.getDx()*sin) +
 				z * (Math.pow(vect.getDz(), 2) + (1 - Math.pow(vect.getDz(), 2)) * cos) );
+	}
+	
+	/** Representation textuelle d'un Point3D */
+	public String toString() {
+		return "(" + getX() + ", " + getY() + ", " + getZ() + ")";
 	}
 	
 	/** Retourne la distance entre deux points */

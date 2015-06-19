@@ -2,64 +2,94 @@ package math;
 
 public class Vec4 {
 	
-	private double[] matrix;
-	
-	/** Constructeur */
-	public Vec4() {
-		this.matrix = new double[] {0, 0, 0, 1};
-	}
+	double x, y, z, w;
 	
 	/** Constructeur */
 	public Vec4(double x, double y, double z, double w) {
-		this.matrix = new double[] {x, y, z, w};
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
 	}
 	
+	/** Constructeur */
 	public Vec4(Point3D point) {
-		this.matrix = new double[] {point.getX(), point.getY(), point.getZ(), 1};
+		this(point.getX(), point.getY(), point.getZ(), 1);
 	}
-
+	
+	/** Constructeur */
 	public Vec4(Vecteur3D vect) {
-		this.matrix = new double[] {vect.getDx(), vect.getDy(), vect.getDz(), 0};
+		this(vect.getDx(), vect.getDy(), vect.getDz(), 0);
 	}
 	
-//	public Vec4(Point3D point1, Point3D point2) {
-//		double x = point2.getX() - point1.getX();
-//		double y = point2.getY() - point1.getY();
-//		double z = point2.getZ() - point1.getZ();
-//		this.matrix = new double[] {x, y, z, 0};
-//	}
+	/** Constructeur */
+	public Vec4() {
+		this(0, 0, 0, 1);
+	}
 	
+	/** Retourne la composante x */
 	public double getX() {
-		return matrix[0];
+		return x;
 	}
 	
+	/** Retourne la composante y */
 	public double getY() {
-		return matrix[1];
+		return y;
 	}
 	
+	/** Retourne la composante z */
 	public double getZ() {
-		return matrix[2];
+		return z;
 	}
 	
+	/** Retourne la composante w */
 	public double getW() {
-		return matrix[3];
+		return w;
 	}
 	
+	/** Retourne la composante i */
 	public double get(int i) {
-		return matrix[i];
+		double res = 0;
+		switch (i) {
+		case 0:
+			res = getX();
+			break;
+		case 1:
+			res = getY();
+			break;
+		case 2:
+			res = getZ();
+			break;
+		case 3:
+			res = getW();
+			break;
+		default:
+			break;
+		}
+		return res;
 	}
 	
+	/** Set la composante i */
 	public void set(int i, double d) {
-		matrix[i] = d;
+		switch (i) {
+		case 0:
+			this.x = d;
+			break;
+		case 1:
+			this.y = d;
+			break;
+		case 2:
+			this.z = d;
+			break;
+		case 3:
+			this.w = d;
+			break;
+		default:
+			break;
+		}
 	}
 	
-	public void set(Point3D point) {
-		set(0, point.getX());
-		set(1, point.getY());
-		set(2, point.getZ());
-		set(3, 1);
-	}
-	
+	/** Normalise le Vec4 */
 	public Vec4 normalized() {
 		if (Math.abs(getW()) < 0.0001) {
 			throw new ArithmeticException("Coordonnees homogenes : division par 0");
@@ -70,11 +100,13 @@ public class Vec4 {
 		return new Vec4(x, y, z, 1);
 	}
 	
+	/** Converti en Point3D */
 	public Point3D toPoint3D() {
 		double w  = getW();
 		return new Point3D(getX()/w, getY()/w, getZ()/w);
 	}
 	
+	/** Converti en Vecteur3D */
 	public Vecteur3D toVecteur3D() {
 		return new Vecteur3D(getX(), getY(), getZ());
 	}

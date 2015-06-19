@@ -7,7 +7,7 @@ public class Base3D {
 	
 	/** Constructeur */
 	public Base3D(Point3D origine) {
-		this.origine = origine;
+		this.origine = new Point3D(origine);
 		this.oi = new Vecteur3D(1, 0, 0);
 		this.oj = new Vecteur3D(0, 1, 0);
 		this.ok = new Vecteur3D(0, 0, 1);
@@ -15,7 +15,7 @@ public class Base3D {
 	
 	/** Constructeur */
 	public Base3D(Point3D origine, Vecteur3D oi, Vecteur3D oj, Vecteur3D ok) {
-		this.origine = origine;
+		this.origine = new Point3D(origine);
 		this.oi = oi;
 		this.oj = oj;
 		this.ok = ok;

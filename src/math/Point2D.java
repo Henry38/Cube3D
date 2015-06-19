@@ -5,33 +5,39 @@ public class Point2D {
 	private int x, y;
 	
 	/** Constructeur */
-	public Point2D() {
-		this.x = 0;
-		this.y = 0;
-	}
-	
-	/** Constructeur */
 	public Point2D(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	/** Retourne la composante x du point */
+	/** Constructeur */
+	public Point2D(Point2D point) {
+		this.x = point.getX();
+		this.y = point.getY();
+	}
+	
+	/** Constructeur */
+	public Point2D() {
+		this.x = 0;
+		this.y = 0;
+	}
+	
+	/** Retourne la composante x */
 	public int getX() {
 		return x;
 	}
 	
-	/** Retourne la composante y du point */
+	/** Retourne la composante y */
 	public int getY() {
 		return y;
 	}
 	
-	/** Set la composante x du point */
+	/** Set la composante x */
 	public void setX(int x) {
 		this.x = x;
 	}
 	
-	/** Set la composante y du point */
+	/** Set la composante y */
 	public void setY(int y) {
 		this.y = y;
 	}
@@ -39,10 +45,6 @@ public class Point2D {
 	/** Retourne la distance a l'origine */
 	public double getModule() {
 		return Math.sqrt(getX()*getX() + getY()*getY());
-	}
-	
-	public String toString() {
-		return "(" + getX() + ", " + getY() + ")";
 	}
 	
 	/** Translate le point */
@@ -60,6 +62,11 @@ public class Point2D {
 		double sin = Math.sin(radian);
 		setX((int) ((x1 * cos) + (y1 * sin)));
 		setY((int) ((x1 * -sin) + (y1 * cos)));
+	}
+	
+	/** Representation textuelle d'un Point2D */
+	public String toString() {
+		return "(" + getX() + ", " + getY() + ")";
 	}
 	
 	/** Retourne la distance entre deux points */

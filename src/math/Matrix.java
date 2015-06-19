@@ -18,9 +18,9 @@ public class Matrix {
 	/** Constructeur */
 	public Matrix(double[][] tab) {
 		this.matrix = new double[tab.length][];
-		for (int i=0; i<tab.length; i++) {
+		for (int i = 0; i < tab.length; i++) {
 			matrix[i] = new double[tab[0].length];
-			for (int j=0; j<tab[i].length; j++) {
+			for (int j = 0; j < tab[i].length; j++) {
 				set(i, j, tab[i][j]);
 			}
 		}
@@ -40,8 +40,8 @@ public class Matrix {
 	/** Retourne la matrice clonée */
 	public Matrix clone() {
 		Matrix m = new Matrix(getLineDimension(), getColumnDimension());
-		for (int i=0; i<getLineDimension(); i++) {
-			for (int j=0; j<getColumnDimension(); j++) {
+		for (int i = 0; i < getLineDimension(); i++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				m.set(i, j, get(i, j));
 			}
 		}
@@ -69,7 +69,7 @@ public class Matrix {
 	
 	public Matrix getLine(int i) {
 		Matrix m = new Matrix(1, getColumnDimension());
-		for (int j=0; j<getColumnDimension(); j++) {
+		for (int j = 0; j < getColumnDimension(); j++) {
 			m.set(0, j, get(i, j));
 		}
 		return m;
@@ -77,7 +77,7 @@ public class Matrix {
 	
 	public Matrix getColumn(int j) {
 		Matrix m = new Matrix(getLineDimension(), 1);
-		for (int i=0; i<getLineDimension(); i++) {
+		for (int i = 0; i < getLineDimension(); i++) {
 			m.set(i, 0, get(i, j));
 		}
 		return m;
@@ -94,11 +94,11 @@ public class Matrix {
 		}
 		
 		double[][] res = new double[nbLine][];
-		for (int i=0; i<nbLine; i++) {
+		for (int i = 0; i < nbLine; i++) {
 			res[i] = new double[nbColumn];
 		}
-		for (int i=0; i<Math.min(nbLine, getLineDimension()); i++) {
-			for (int j=0; j<Math.min(nbColumn, getColumnDimension()); j++) {
+		for (int i = 0; i < Math.min(nbLine, getLineDimension()); i++) {
+			for (int j = 0; j < Math.min(nbColumn, getColumnDimension()); j++) {
 				res[i][j] = get(i, j);
 			}
 		}
@@ -111,7 +111,7 @@ public class Matrix {
 		}
 		
 		Matrix tmp = getLine(line1);
-		for (int j=0; j<getColumnDimension(); j++) {
+		for (int j = 0; j < getColumnDimension(); j++) {
 			set(line1, j, get(line2, j));
 			set(line2, j, tmp.get(0, j));
 		}
@@ -123,7 +123,7 @@ public class Matrix {
 		}
 		
 		Matrix tmp = getColumn(column1);
-		for (int i=0; i<getLineDimension(); i++) {
+		for (int i = 0; i < getLineDimension(); i++) {
 			set(i, column1, get(i, column2));
 			set(i, column2, tmp.get(i, 0));
 		}
@@ -137,8 +137,8 @@ public class Matrix {
 		int nbLine = getLineDimension() + m.getLineDimension();
 		int nbColumn = getColumnDimension();
 		resize(nbLine, nbColumn);
-		for (int i=0; i<m.getLineDimension(); i++) {
-			for (int j=0; j<m.getColumnDimension(); j++) {
+		for (int i = 0; i < m.getLineDimension(); i++) {
+			for (int j = 0; j < m.getColumnDimension(); j++) {
 				set(nbLine-m.getLineDimension()+i, j, m.get(i, j));
 			}
 		}
@@ -152,8 +152,8 @@ public class Matrix {
 		int nbLine = getLineDimension();
 		int nbColumn = getColumnDimension() + m.getColumnDimension();
 		resize(nbLine, nbColumn);
-		for (int i=0; i<m.getLineDimension(); i++) {
-			for (int j=0; j<m.getColumnDimension(); j++) {
+		for (int i = 0; i < m.getLineDimension(); i++) {
+			for (int j = 0; j < m.getColumnDimension(); j++) {
 				set(i, nbColumn-m.getColumnDimension()+j, m.get(i, j));
 			}
 		}
@@ -166,7 +166,7 @@ public class Matrix {
 		}
 		
 		for (int i=0; i<getLineDimension(); i++) {
-			for (int j=0; j<getColumnDimension(); j++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				set(i, j, get(i,j)+m.get(i, j));
 			}
 		}
@@ -178,16 +178,16 @@ public class Matrix {
 			throw new ArithmeticException("Dimension matrice non conforme");
 		}
 		
-		for (int i=0; i<getLineDimension(); i++) {
-			for (int j=0; j<getColumnDimension(); j++) {
+		for (int i = 0; i < getLineDimension(); i++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				set(i, j, get(i,j)-m.get(i, j));
 			}
 		}
 	}
 	
 	public void mult(double k) {
-		for (int i=0; i<getLineDimension(); i++) {
-			for (int j=0; j<getColumnDimension(); j++) {
+		for (int i = 0; i < getLineDimension(); i++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				set(i, j, get(i, j)*k);
 			}
 		}
@@ -202,10 +202,10 @@ public class Matrix {
 		int nbLine = getLineDimension();
 		int nbColumn = m.getColumnDimension();
 		double[][] res = new double[nbLine][];
-		for (int i=0; i<nbLine; i++) {
+		for (int i = 0; i < nbLine; i++) {
 			res[i] = new double[nbColumn];
-			for (int j=0; j<nbColumn; j++) {
-				for (int k=0; k<getColumnDimension(); k++) {
+			for (int j = 0; j < nbColumn; j++) {
+				for (int k = 0; k < getColumnDimension(); k++) {
 					res[i][j] += get(i, k)*m.get(k, j);
 				}
 			}
@@ -216,8 +216,8 @@ public class Matrix {
 	/** Retourne la matrice transposée */
 	public Matrix getMatrixTranspose() {
 		Matrix m = new Matrix(getColumnDimension(), getLineDimension());
-		for (int i=0; i<getLineDimension(); i++)  {
-			for (int j=0; j<getColumnDimension(); j++)  {
+		for (int i = 0; i < getLineDimension(); i++)  {
+			for (int j = 0; j < getColumnDimension(); j++)  {
 				m.set(j, i, get(i, j));
 			}
 		}
@@ -237,7 +237,7 @@ public class Matrix {
 		Matrix A = clone();
 		Matrix b = m.clone();
 		// Triangularisation de la matrice
-		for (int k=0; k<getColumnDimension(); k++) {
+		for (int k = 0; k < getColumnDimension(); k++) {
 			p = A.get(k, k);
 			// Recherche a cause du pivot nul
 			if (p == 0) {
@@ -255,7 +255,7 @@ public class Matrix {
 			for (int i=k+1; i<getLineDimension(); i++) {
 				if (A.get(i, k) != 0) {
 					coef = p / A.get(i, k);
-					for (int j=k; j<getColumnDimension(); j++) {
+					for (int j = k; j < getColumnDimension(); j++) {
 						A.set(i, j, (A.get(i, j)*coef) - A.get(k, j));
 					}
 					b.set(i, 0, b.get(i, 0)*coef - b.get(k, 0));
@@ -265,8 +265,8 @@ public class Matrix {
 		
 		Matrix res = new Matrix(getLineDimension(), 1);
 		// Calcul des solutions du systeme
-		for (int i=getLineDimension()-1; i>=0; i--) {
-			for (int j=getColumnDimension()-1; j>=i+1; j--) {
+		for (int i = getLineDimension()-1; i >= 0; i--) {
+			for (int j = getColumnDimension()-1; j >= i+1; j--) {
 				b.set(i, 0, b.get(i, 0) - (A.get(i, j)*res.get(j, 0)));
 			}
 			res.set(i, 0, b.get(i, 0)/A.get(i, i));
@@ -277,8 +277,8 @@ public class Matrix {
 	
 	public String toString() {
 		String s = "";
-		for (int i=0; i<getLineDimension(); i++) {
-			for (int j=0; j<getColumnDimension(); j++) {
+		for (int i = 0; i < getLineDimension(); i++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				if (get(i, j) >= 0) {
 					s += " ";
 				}
@@ -291,9 +291,9 @@ public class Matrix {
 	
 	public double[][] toArray() {
 		double[][] res = new double[getLineDimension()][];
-		for (int i=0; i<getLineDimension(); i++) {
+		for (int i = 0; i < getLineDimension(); i++) {
 			res[i] = new double[getColumnDimension()];
-			for (int j=0; j<getColumnDimension(); j++) {
+			for (int j = 0; j < getColumnDimension(); j++) {
 				res[i][j] = get(i, j);
 			}
 		}

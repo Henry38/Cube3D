@@ -5,15 +5,15 @@ public class Vecteur2D {
 	private double dist_x, dist_y;
 	
 	/** Constructeur */
-	public Vecteur2D() {
-		this.dist_x = 0;
-		this.dist_y = 0;
-	}
-	
-	/** Constructeur */
 	public Vecteur2D(double dist_x, double dist_y) {
 		this.dist_x = dist_x;
 		this.dist_y = dist_y;
+	}
+	
+	/** Constructeur */
+	public Vecteur2D(Vecteur2D vect) {
+		this.dist_x = vect.getDx();
+		this.dist_y = vect.getDy();
 	}
 	
 	/** Constructeur */
@@ -22,27 +22,28 @@ public class Vecteur2D {
 		this.dist_y = b.getY() - a.getY();
 	}
 	
-	/** Retourne une copie du vecteur */
-	public Vecteur2D clone() {
-		return new Vecteur2D(getDx(), getDy());
+	/** Constructeur */
+	public Vecteur2D() {
+		this.dist_x = 0;
+		this.dist_y = 0;
 	}
 	
-	/** Retourne la composante x du vecteur */
+	/** Retourne la composante x */
 	public double getDx() {
 		return dist_x;
 	}
 	
-	/** Retourne la composante y du vecteur */
+	/** Retourne la composante y */
 	public double getDy() {
 		return dist_y;
 	}
 	
-	/** Set la composante x du vecteur */
+	/** Set la composante x */
 	public void setDx(double dist_x) {
 		this.dist_x = dist_x;
 	}
 	
-	/** Set la composante y du vecteur */
+	/** Set la composante y */
 	public void setDy(double dist_y) {
 		this.dist_y = dist_y;
 	}
@@ -59,10 +60,6 @@ public class Vecteur2D {
 		dx = getDx() / norme;
 		dy = getDy() / norme;
 		return new Vecteur2D(dx, dy);
-	}
-	
-	public String toString() {
-		return "(" + ((int)(getDx()*100))/100.0 + " , " + ((int)(getDy()*100))/100.0 + ")";
 	}
 	
 	/** Normalise le vecteur */
@@ -108,6 +105,11 @@ public class Vecteur2D {
 		double sin = Math.sin(radian);
 		setDx((x * cos) + (y * sin));
 		setDy((x * -sin) + (y * cos));
+	}
+	
+	/** Representation textuelle d'un Vecteur2D */
+	public String toString() {
+		return "(" + ((int)(getDx()*100))/100.0 + " , " + ((int)(getDy()*100))/100.0 + ")";
 	}
 	
 	/** Retourne le produit scalaire de deux vecteurs en 3 dimensions */

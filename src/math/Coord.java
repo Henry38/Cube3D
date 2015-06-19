@@ -12,9 +12,15 @@ public class Coord {
 	}
 	
 	/** Constructeur */
-	public Coord(double coordX, double coordY) {
-		this.coordU = coordX;
-		this.coordV = coordY;
+	public Coord(double coordU, double coordV) {
+		this.coordU = coordU;
+		this.coordV = coordV;
+	}
+	
+	/** Constructeur */
+	public Coord(Coord coord) {
+		this.coordU = coord.getU();
+		this.coordV = coord.getV();
 	}
 	
 	/** Retourne la composante u */

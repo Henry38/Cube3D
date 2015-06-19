@@ -5,17 +5,17 @@ public class Vecteur3D {
 	private double dist_x, dist_y, dist_z;
 	
 	/** Constructeur */
-	public Vecteur3D() {
-		this.dist_x = 0;
-		this.dist_y = 0;
-		this.dist_z = 0;
-	}
-	
-	/** Constructeur */
 	public Vecteur3D(double dist_x, double dist_y, double dist_z) {
 		this.dist_x = dist_x;
 		this.dist_y = dist_y;
 		this.dist_z = dist_z;
+	}
+	
+	/** Constructeur */
+	public Vecteur3D(Vecteur3D vect) {
+		this.dist_x = vect.getDx();
+		this.dist_y = vect.getDy();
+		this.dist_z = vect.getDz();
 	}
 	
 	/** Constructeur */
@@ -25,49 +25,41 @@ public class Vecteur3D {
 		this.dist_z = b.getZ() - a.getZ();
 	}
 	
-	/** Retourne une copie du vecteur */
-	public Vecteur3D clone() {
-		return new Vecteur3D(getDx(), getDy(), getDz());
+	/** Constructeur */
+	public Vecteur3D() {
+		this.dist_x = 0;
+		this.dist_y = 0;
+		this.dist_z = 0;
 	}
 	
-	/** Retourne la composante x du vecteur */
+	/** Retourne la composante x */
 	public double getDx() {
 		return dist_x;
 	}
 	
-	/** Retourne la composante y du vecteur */
+	/** Retourne la composante y */
 	public double getDy() {
 		return dist_y;
 	}
 	
-	/** Retourne la composante z du vecteur */
+	/** Retourne la composante z */
 	public double getDz() {
 		return dist_z;
 	}
 	
-	/** Set la composante x du vecteur */
+	/** Set la composante x */
 	public void setDx(double dist_x) {
 		this.dist_x = dist_x;
 	}
 	
-	/** Set la composante y du vecteur */
+	/** Set la composante y */
 	public void setDy(double dist_y) {
 		this.dist_y = dist_y;
 	}
 	
-	/** Set la composante z du vecteur */
+	/** Set la composante z */
 	public void setDz(double dist_z) {
 		this.dist_z = dist_z;
-	}
-	
-	/** Retourne la matrice des coordonnes homogenes du vecteur */
-	public Matrix getModel() {
-		Matrix m = new Matrix(4, 1);
-		m.set(0, 0, getDx());
-		m.set(1, 0, getDy());
-		m.set(2, 0, getDz());
-		m.set(3, 0, 0);
-		return m;
 	}
 	
 	/** Retourne la norme du vecteur */
@@ -83,10 +75,6 @@ public class Vecteur3D {
 		dy = getDy() / norme;
 		dz = getDz() / norme;
 		return new Vecteur3D(dx, dy, dz);
-	}
-	
-	public String toString() {
-		return "(" + ((int)(getDx()*100))/100.0 + " , " + ((int)(getDy()*100))/100.0 + " , " + ((int)(getDz()*100))/100.0 + ")";
 	}
 	
 	/** Normalise le vecteur */
@@ -147,6 +135,22 @@ public class Vecteur3D {
 				z * (Math.pow(vect.getDz(), 2) + (1 - Math.pow(vect.getDz(), 2)) * cos) );
 	}
 	
+	/** Representation textuelle d'un Vecteur2D */
+	public String toString() {
+		return "(" + ((int)(getDx()*100))/100.0 + " , " + ((int)(getDy()*100))/100.0 + " , " + ((int)(getDz()*100))/100.0 + ")";
+	}
+	
+	/** Retourne le Vecteur3D reflechi par la normal
+	 * e & normal sont normalises
+	 * */
+	public static Vecteur3D reflect(Vecteur3D e, Vecteur3D normal) {
+		double dot = Vecteur3D.produit_scalaire(e, normal);
+		double dx = e.getDx() - 2 * dot * normal.getDx();
+		double dy = e.getDy() - 2 * dot * normal.getDy();
+		double dz = e.getDz() - 2 * dot * normal.getDz();
+		return new Vecteur3D(dx, dy, dz);
+	}
+	
 	/** Retourne le produit scalaire de deux vecteurs */
 	public static double produit_scalaire(Vecteur3D vect1, Vecteur3D vect2) {
 		return (vect1.getDx() * vect2.getDx() + vect1.getDy() * vect2.getDy() + vect1.getDz() * vect2.getDz());
@@ -176,13 +180,5 @@ public class Vecteur3D {
 		boolean a = Math.abs(vect1.getDx()/vect2.getDx() - vect1.getDy()/vect2.getDy()) < 0.01;
 		boolean b = Math.abs(vect1.getDy()/vect2.getDy() - vect1.getDz()/vect2.getDz()) < 0.01;
 		return (a && b);
-	}
-	
-	public static Vecteur3D reflect(Vecteur3D e, Vecteur3D normal) {
-		double dot = Vecteur3D.produit_scalaire(e, normal);
-		double dx = e.getDx() - 2 * dot * normal.getDx();
-		double dy = e.getDy() - 2 * dot * normal.getDy();
-		double dz = e.getDz() - 2 * dot * normal.getDz();
-		return new Vecteur3D(dx, dy, dz);
 	}
 }

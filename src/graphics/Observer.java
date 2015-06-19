@@ -31,7 +31,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	private Camera camera;
 	private Viewport viewport;
 	
-	Mat4 modelMat, viewMat, projMat, screenMat, normalMat;
+	Mat4 modelMat, viewMat, projMat, screenMat;
 	
 	private BufferedImage image, texture;
 	private WritableRaster raster;
@@ -549,7 +549,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	/** Dessine les arêtes de la Shape3D definie dans le repere World */
 	private void drawShape3D(Shape3D shape) {
-		normalMat = camera.normalMat(modelMat, viewMat);
 		texture = shape.getTexture();
 		if (texture != null) {
 			textureWidth = texture.getWidth()-1;
@@ -562,17 +561,17 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		Vec4 p;
 		Point3D eye = camera.getOrigine();
 		Vecteur3D vision = new Vecteur3D(0, 0, 0);
-		Vecteur3D normale = null;
+		Vecteur3D normal = null;
 		
 		for (Triangle triangle : shape.getListTriangle()) {
 			p = modelMat.mult(new Vec4(triangle.getP1())).normalized();
 			vision.setDx(p.getX() - eye.getX());
 			vision.setDy(p.getY() - eye.getY());
 			vision.setDz(p.getZ() - eye.getZ());
-			normale = modelMat.mult(new Vec4(triangle.getNormal())).toVecteur3D();
+			normal = modelMat.mult(new Vec4(triangle.getNormal())).toVecteur3D();
 			
 			// Back face culling
-			if (Vecteur3D.produit_scalaire(vision, normale) < 0) {
+			if (Vecteur3D.produit_scalaire(vision, normal) < 0) {
 				if (shape.getRenderingMode() == Shape3D.WIREFRAME) {
 					drawEdgeTriangle(triangle);
 				} else {
