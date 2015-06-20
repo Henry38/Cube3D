@@ -23,6 +23,12 @@ public class Vecteur2D {
 	}
 	
 	/** Constructeur */
+	public Vecteur2D(Point2D point) {
+		this.dist_x = point.getX();
+		this.dist_y = point.getY();
+	}
+	
+	/** Constructeur */
 	public Vecteur2D() {
 		this.dist_x = 0;
 		this.dist_y = 0;

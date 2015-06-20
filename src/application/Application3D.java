@@ -104,6 +104,7 @@ public class Application3D extends Thread {
 		
 		// Transformation
 		teapot.rotationOx(Math.PI/2);
+		teapot.translation(0.2, 1, 0);
 //		teapot.rotationOy(Math.PI/2);
 //		cube1.translation(0, 1, 0);
 		

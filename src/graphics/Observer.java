@@ -89,10 +89,13 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		for (Shape3D shape : world.getlistShape()) {
 			modelMat = shape.modelMat();
 			projViewModelMat = projMat.mult(viewMat).mult(modelMat);
+			drawRepere(shape.getBase());
 			drawShape3D(shape);
 		}
 		modelMat = new Mat4();
 		projViewModelMat = projMat.mult(viewMat).mult(modelMat);
+		
+		drawRepere(world.getBase());
 		
 		//drawRepere(world.getBase());
 //		g.setColor(Color.red);
@@ -330,7 +333,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	
 	
-	/** Dessine un point defini dans le repere World */
+	/** Dessine un point defini place dans le monde avec la modelMat */
 	private void drawPoint3D(Graphics g, Point3D point) {
 		Vec4 proj_p = getProjectivePoint3D(point).normalized();
 		Point3D p = getWindowScreenPoint3D(proj_p);
@@ -346,7 +349,7 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		}
 	}
 	
-	/** Dessine une droite entre deux points du repere World */
+	/** Dessine une droite entre deux points places dans le monde avec la modelMat */
 	private void drawLine3D(Point3D point1, Point3D point2, Color color) {
 		Vec4 proj_p1 = getProjectivePoint3D(point1);
 		Vec4 proj_p2 = getProjectivePoint3D(point2);
@@ -363,8 +366,9 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			Point2D p1 = new Point2D((int)screenP1.getX(), (int)screenP1.getY());
 			Point2D p2 = new Point2D((int)screenP2.getX(), (int)screenP2.getY());
 			
-			double d = Point2D.distance(p1, p2);
-			double h, d1, d2, z1, z2, z;
+			double z;
+			double d1, d2, d, h;
+			double coef1, coef2;
 			int x, y, index;
 			for (Point2D p : Bresenham2D(p1.getX(), p1.getY(), p2.getX(), p2.getY())) {
 				x = p.getX();
@@ -374,16 +378,14 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 					
 					d1 = Point2D.distance(p1, p);
 					d2 = Point2D.distance(p, p2);
+					d = d1 + d2;
 					
-					h = 0;
-					h += (d1 / d) * (1.0 / proj_p1.getW());
-					h += (d2 / d) * (1.0 / proj_p2.getW());
+					coef1 = d1 / (d * proj_p1.getW());
+					coef2 = d2 / (d * proj_p2.getW());
 					
-					z1 = (d1 / d) * (ndcP1.getZ() / proj_p1.getW());
-	    			z2 = (d2 / d) * (ndcP2.getZ() / proj_p2.getW());
-	    			
-	    			z = (z1 + z2) / h;
-	    			
+					h = coef1 + coef2;
+					z = ((coef1 * ndcP1.getZ()) + (coef2 * ndcP2.getZ())) / h;
+					
 	    			if (z < zBuffer[(y * viewportWidth) + x]) {
 	    				zBuffer[(y * viewportWidth) + x] = z;
 	    				
@@ -433,40 +435,6 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 				listCell = getHash(p1, p2, p3);
 			}
 			
-			
-//			Vecteur3D n1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getNormal()))).toVecteur3D();
-//			n1.normalized();
-//			
-//			Point3D pp1 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP1()))).toPoint3D();
-//			Point3D pp2 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP2()))).toPoint3D();
-//			Point3D pp3 = viewMat.mult(modelMat.mult(new Vec4(triangle.getP3()))).toPoint3D();
-//			
-//			Vecteur3D vp1 = new Vecteur3D(new Point3D(), pp1);
-//			vp1.normalized();
-//			Vecteur3D vp2 = new Vecteur3D(new Point3D(), pp2);
-//			vp2.normalized();
-//			Vecteur3D vp3 = new Vecteur3D(new Point3D(), pp3);
-//			vp3.normalized();
-//			
-//			Vecteur3D r1 = Vecteur3D.reflect(vp1, n1);
-//			Vecteur3D r2 = Vecteur3D.reflect(vp2, n1);
-//			Vecteur3D r3 = Vecteur3D.reflect(vp3, n1);
-//			
-//			double au1 = (Math.atan2(r1.getDx(), r1.getDz()) + Math.PI) / (2*Math.PI);
-//			double av1 = Math.acos(r1.getDy()) / Math.PI;
-//			
-//			double au2 = (Math.atan2(r2.getDx(), r2.getDz()) + Math.PI) / (2*Math.PI);
-//			double av2 = Math.acos(r2.getDy()) / Math.PI;
-//			
-//			double au3 = (Math.atan2(r3.getDx(), r3.getDz()) + Math.PI) / (2*Math.PI);
-//			double av3 = Math.acos(r3.getDy()) / Math.PI;
-//			
-//			Coord[] listCoord = new Coord[] {
-//					new Coord(au1, av1),
-//					new Coord(au2, av2),
-//					new Coord(au3, av3)
-//			};
-			
 			Coord[] listCoord = triangle.getListCoord();
 			// Flat Shading
 //			Coord[] listCoord = new Coord[] {
@@ -474,11 +442,9 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 //					new Coord((pp2.getY()-minY)/(maxY-minY), (pp2.getZ()-minZ)/(maxZ-minZ)),
 //					new Coord((pp3.getY()-minY)/(maxY-minY), (pp3.getZ()-minZ)/(maxZ-minZ))
 //			};
-			int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
-			int y, index;
-			double u1, v1, z1, u2, v2, z2, u3, v3, z3;
 			double u, v, z;
 			double area1, area2, area3, d, h;
+			double coef1, coef2, coef3;
 			
 			Light light = world.getLight();
 			Vecteur3D n = modelMat.mult(new Vec4(triangle.getNormal())).toVecteur3D();
@@ -491,6 +457,8 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 			int b = (int) Math.max(0, Math.min(triangleColor.getBlue() + lightColor.getBlue() * cos, 255));
 			
 			Cell c;
+			int minY = Math.min(p1.getY(), Math.min(p2.getY(), p3.getY()));
+			int y, index;
 			for (int k = 0; k < listCell.size(); k++) {
 				c = listCell.get(k);
 				y = minY + k;
@@ -503,26 +471,15 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 		    			area3 = areaTriangle(p1.getX(), p1.getY(), p2.getX(), p2.getY(), x, y);
 		    			d = area1 + area2 + area3;
 		    			
-		    			h = 0;
-		    			h += (area1 / d) * (1.0 / proj_p1.getW());	// 1 / w
-		    			h += (area2 / d) * (1.0 / proj_p2.getW());
-		    			h += (area3 / d) * (1.0 / proj_p3.getW());
+		    			coef1 = area1 / (d * proj_p1.getW());
+		    			coef2 = area2 / (d * proj_p2.getW());
+		    			coef3 = area3 / (d * proj_p3.getW());
 		    			
-		    			u1 = (area1 / d) * (listCoord[0].getU() / proj_p1.getW());	// u / w
-		    			v1 = (area1 / d) * (listCoord[0].getV() / proj_p1.getW());	// v / w
-		    			z1 = (area1 / d) * (ndcP1.getZ() / proj_p1.getW());		// z
+		    			h = coef1 + coef2 + coef3;
 		    			
-		    			u2 = (area2 / d) * (listCoord[1].getU() / proj_p2.getW());
-		    			v2 = (area2 / d) * (listCoord[1].getV() / proj_p2.getW());
-		    			z2 = (area2 / d) * (ndcP2.getZ() / proj_p2.getW());
-		    			
-		    			u3 = (area3 / d) * (listCoord[2].getU() / proj_p3.getW());
-		    			v3 = (area3 / d) * (listCoord[2].getV() / proj_p3.getW());
-		    			z3 = (area3 / d) * (ndcP3.getZ()) / proj_p3.getW();
-		    			
-		    			u = (u1 + u2 + u3) / h;
-		    			v = (v1 + v2 + v3) / h;
-		    			z = (z1 + z2 + z3) / h;
+		    			u = ((coef1 * listCoord[0].getU()) + (coef2 * listCoord[1].getU()) + (coef3 * listCoord[2].getU())) / h;
+		    			v = ((coef1 * listCoord[0].getV()) + (coef2 * listCoord[1].getV()) + (coef3 * listCoord[2].getV())) / h;
+		    			z = ((coef1 * ndcP1.getZ()) + (coef2 * ndcP2.getZ()) + (coef3 * ndcP3.getZ())) / h;
 		    			
 		    			if (texture != null) {
 		    				Color localColor = new Color(texture.getRGB((int)(u*textureWidth), (int)(v*textureHeight)));
@@ -580,28 +537,15 @@ public class Observer extends JComponent implements MouseMotionListener, MouseLi
 	
 	/** Dessine la base definie dans le repere World */
 	private void drawRepere(Base3D base) {
-		Point3D origin = base.getOrigine();
-		Point3D p = new Point3D();
-		Color color;
-		
-		for (Vecteur3D vect : base.getVecteurs()) {
-			if (vect == base.oi) {
-				color = new Color(255, 0, 0);
-				//p1 = new Point3D(Integer.MAX_VALUE, 0, 0);
-			} else if (vect == base.oj) {
-				color = new Color(0, 255, 0);
-				//p1 = new Point3D(0, Integer.MAX_VALUE, 0);
-			} else {// if (vect == base.ok) {
-				color = new Color(0, 0, 255);
-				//p1 = new Point3D(0, 0, Integer.MAX_VALUE);
-			}
-			
-			p.setX(origin.getX());
-			p.setY(origin.getY());
-			p.setZ(origin.getZ());
-			p.translation(vect);
-			drawLine3D(origin, p, color);
-		}
+		Point3D origin = new Point3D(0, 0, 0);
+		Point3D p = new Point3D(1, 0, 0);
+		drawLine3D(origin, p, Color.red);
+		p.setX(0);
+		p.setY(1);
+		drawLine3D(origin, p, Color.green);
+		p.setY(0);
+		p.setZ(1);
+		drawLine3D(origin, p, Color.blue);
 	}
 	
 	

@@ -26,6 +26,13 @@ public class Vecteur3D {
 	}
 	
 	/** Constructeur */
+	public Vecteur3D(Point3D point) {
+		this.dist_x = point.getX();
+		this.dist_y = point.getY();
+		this.dist_z = point.getZ();
+	}
+	
+	/** Constructeur */
 	public Vecteur3D() {
 		this.dist_x = 0;
 		this.dist_y = 0;
