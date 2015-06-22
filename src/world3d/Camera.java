@@ -7,16 +7,16 @@ import math.Vecteur3D;
 
 public class Camera {
 	
-	public enum PROJECTION {PERSPECTIVE, ORTHOGRAPHIC};
+	public enum TYPE {PERSPECTIVE, ORTHOGRAPHIC};
 	
 	private Point3D pointCamera;
 	private Point3D pointObserver;
-	private PROJECTION projection;
+	private TYPE projection;
 	private double zNear, zFar;
 	private double uMin, uMax, vMin, vMax;
 	
 	/** Constructeur */
-	public Camera(Point3D pointCamera, Point3D pointObserver, PROJECTION projection) {
+	public Camera(Point3D pointCamera, Point3D pointObserver, TYPE projection) {
 		this.pointCamera = pointCamera;
 		this.pointObserver = pointObserver;
 		this.projection = projection;
@@ -106,7 +106,7 @@ public class Camera {
 	
 	/** Retourne la matrice de projection */
 	public Mat4 projMat() {
-		if (projection == PROJECTION.PERSPECTIVE) {
+		if (projection == TYPE.PERSPECTIVE) {
 			Mat4 m = new Mat4(new double[][] {
 					{2*zNear/(uMax-uMin),                   0,  -(uMax+uMin)/(uMax-uMin),                          0},
 					{                  0, 2*zNear/(vMax-vMin),  -(vMax+vMin)/(vMax-vMin),                          0},

@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import math.Base3D;
+import math.Coord;
 import math.Mat4;
 import math.Point3D;
+import math.Vecteur3D;
 import math.Viewport;
 
 public class Shape3D {
