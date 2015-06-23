@@ -1,6 +1,5 @@
 package graphics;
 
-import java.awt.Graphics;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -22,20 +21,19 @@ public class CameraPanel extends JPanel implements Observer {
 		setName("Camera");		
 		setLayout(null);
 		
-		JLabel position = new JLabel("Position :");
+		JLabel position = new JLabel("Position :\n\t 3.5");
 		position.setBounds(16, 16, 160, 32);
 		add(position);
 	}
 	
 	@Override
 	public void update(Observable obs, Object obj) {
-		Camera camera = (Camera) obs;
-		Point3D pointCamera = camera.getOrigine();
-		Point3D pointObserver = camera.getObserver();
-		Vecteur3D direction = new Vecteur3D(pointCamera, pointObserver);
-		
-		System.out.println("Helo");
-		
+//		Camera camera = (Camera) obs;
+//		Point3D pointCamera = camera.getOrigine();
+//		Point3D pointObserver = camera.getObserver();
+//		Vecteur3D direction = new Vecteur3D(pointCamera, pointObserver);
+//		
+//		System.out.println(direction);
 	}
 	
 //	public void paintComponent(Graphics g) {

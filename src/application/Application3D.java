@@ -2,25 +2,17 @@ package application;
 
 import java.awt.AWTException;
 import java.awt.Color;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import math.Mat4;
 import math.Point3D;
-import math.Vec4;
 import math.Vecteur3D;
 import geometry.Cube;
 import geometry.Damier;
 import geometry.Light;
-import geometry.Miroir;
 import geometry.Shape3D;
-import geometry.Triangle;
 import graphics.MainWindow;
-import graphics.Viewer;
 import world3d.Camera;
 import world3d.Camera.TYPE;
 import world3d.World3D;
@@ -48,27 +40,6 @@ public class Application3D extends Thread {
 	}
 	
 	public static void main(String[] args) throws AWTException {
-		
-//		Toolkit tk = Toolkit.getDefaultToolkit();
-//		int width = (int) tk.getScreenSize().getWidth();
-//		int height = (int) tk.getScreenSize().getHeight();
-//		
-//		JFrame frame = new JFrame("3D Application");
-//		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-//		frame.addKeyListener(new KeyListener() {
-//			public void keyTyped(KeyEvent ev) {}
-//			
-//			public void keyReleased(KeyEvent ev) {}
-//			
-//			public void keyPressed(KeyEvent ev) {
-//				if (ev.getKeyCode() == KeyEvent.VK_ESCAPE) {
-//					frame.dispose();
-//					System.exit(0);
-//				}
-//			}
-//		});
-//		frame.setLocation(width / 6, height / 6);
-//		frame.setResizable(false);
 		
 		StlReader stlReader = new StlReader();
 		ObjReader objReader = new ObjReader();

@@ -49,4 +49,8 @@ public class World3D {
 	public void setLight(Light light) {
 		this.light = light;
 	}
+
+	public Shape3D getShape(int i) {
+		return listShape.get(i);
+	}
 }
