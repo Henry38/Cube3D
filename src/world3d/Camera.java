@@ -1,11 +1,13 @@
 package world3d;
 
+import java.util.Observable;
+
 import math.Base3D;
 import math.Mat4;
 import math.Point3D;
 import math.Vecteur3D;
 
-public class Camera {
+public class Camera extends Observable {
 	
 	public enum TYPE {PERSPECTIVE, ORTHOGRAPHIC};
 	
@@ -47,23 +49,29 @@ public class Camera {
 	}
 	
 	/** Positionne la camera dans le repere World */
-	public void placeCamera(int x, int y, int z) {
+	public void placeAt(double x, double y, double z) {
 		pointCamera.setX(x);
 		pointCamera.setY(y);
 		pointCamera.setZ(z);
+		setChanged();
+	    notifyObservers();
 	}
 	
 	/** Defini le point du monde a regarder */
-	public void lookAt(int x, int y, int z) {
+	public void lookAt(double x, double y, double z) {
 		pointObserver.setX(x);
 		pointObserver.setY(y);
 		pointObserver.setZ(z);
+		setChanged();
+	    notifyObservers();
 	}
 	
 	/** Translate la camera */
 	public void translation(double dx, double dy, double dz) {
 		pointCamera.translation(dx, dy, dz);
 		pointObserver.translation(dx, dy, dz);
+		setChanged();
+	    notifyObservers();
 	}
 	
 	/** Retourne le Base3D associee a la camera */

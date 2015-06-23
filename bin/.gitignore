@@ -1,6 +1,5 @@
-/graphics/
-/math/
-/world3d/
 /application/
 /geometry/
-/Miroir/
+/math/
+/world3d/
+/graphics/

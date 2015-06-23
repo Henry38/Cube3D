@@ -30,7 +30,7 @@ public class World3D {
 		return repereWorld;
 	}
 	
-	public final ArrayList<Shape3D> getlistShape() {
+	public final ArrayList<Shape3D> getListShape() {
 		return listShape;
 	}
 	

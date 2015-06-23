@@ -20,7 +20,7 @@ import geometry.Miroir;
 import geometry.Shape3D;
 import geometry.Triangle;
 import graphics.MainWindow;
-import graphics.Observer;
+import graphics.Viewer;
 import world3d.Camera;
 import world3d.Camera.TYPE;
 import world3d.World3D;
@@ -80,14 +80,14 @@ public class Application3D extends Thread {
 		// Creation des objets du monde
 		Shape3D piece = stlReader.readFromSTL("sphere.stl");
 		Shape3D teapot = objReader.readFromOBJ("teapot.obj");
-		Cube cube1 = new Cube(null, 0, 0, 0);
-		Damier damier = new Damier(null);
+		Shape3D cube1 = new Cube(null, 0, 0, 0);
+		Shape3D damier = new Damier(null);
 		
 		piece.setTexture("./image/cube1.jpg");
-		//teapot.setRenderingMode(Shape3D.WIREFRAME);
-		teapot.setTexture("./image/environment_map.jpg");
 		teapot.setRenderingMode(Shape3D.WIREFRAME);
+		teapot.setName("Teapot");
 		cube1.setTexture("./image/cube1.jpg");
+		cube1.setName("Cube");
 		damier.setTexture("./image/cube1.jpg");
 		
 		// Transformation
@@ -108,7 +108,10 @@ public class Application3D extends Thread {
 //		m.rotationOz(Math.PI/2);
 //		world.addShape(m);
 		
-		JFrame fen = new MainWindow(world);
+		Camera camera = new Camera(new Point3D(2, 2, 1), new Point3D(0, 0, 0), TYPE.PERSPECTIVE);
+		//Observer observer = new Observer(world, camera, 640, 480);
+		
+		final JFrame fen = new MainWindow(world, camera, 640, 480);
 		fen.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent ev) {}
 			

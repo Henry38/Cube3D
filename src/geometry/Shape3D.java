@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import math.Base3D;
-import math.Coord;
 import math.Mat4;
 import math.Point3D;
-import math.Vecteur3D;
 import math.Viewport;
 
 public class Shape3D {
@@ -25,6 +23,7 @@ public class Shape3D {
 	private String pathTexture;
 	public Viewport viewport;
 	private int render;
+	private String name;
 	
 	/** Constructeur */
 	public Shape3D(Shape3D parent, double x, double y, double z) {
@@ -33,6 +32,7 @@ public class Shape3D {
 		this.listTriangle = new ArrayList<Triangle>();
 		this.pathTexture = "";
 		this.render = OPAQUE;
+		this.setName("Objet");
 	}
 	
 	/** Construteur */
@@ -134,5 +134,13 @@ public class Shape3D {
 	
 	public int getRenderingMode() {
 		return render;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

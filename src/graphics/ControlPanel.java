@@ -2,20 +2,26 @@ package graphics;
 
 import java.awt.Dimension;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
-public class ControlPanel extends JPanel {
+import world3d.Camera;
+import world3d.World3D;
+
+public class ControlPanel extends JTabbedPane {
 	
 	private static final long serialVersionUID = 1L;
 	
 	/** Constructeur */
-	public ControlPanel() {
+	public ControlPanel(World3D world, Camera camera) {
 		super();
+		setPreferredSize(new Dimension(192, 480));
 		
-		setPreferredSize(new Dimension(128, 480));
+		WorldPanel worldPanel = new WorldPanel(world);
 		
-		JButton ok = new JButton("Ok");
-		add(ok);
+		CameraPanel cameraPanel = new CameraPanel();
+		camera.addObserver(cameraPanel);
+		
+		add(worldPanel);
+		add(cameraPanel);
 	}
 }

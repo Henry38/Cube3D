@@ -1,78 +1,83 @@
 package graphics;
 
 import geometry.Light;
-import geometry.Miroir;
 import geometry.Shape3D;
 import geometry.Triangle;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import math.Coord;
-import math.Mat4;
-import math.Point2D;
-import math.Point3D;
-import math.Vec4;
-import math.Vecteur3D;
+import javax.swing.JComponent;
+
+import math.*;
 import world3d.Camera;
 import world3d.World3D;
 
-public class WorldRenderer {
+public class Viewer extends JComponent implements
+			MouseMotionListener,
+			MouseListener,
+			MouseWheelListener {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private World3D world;
 	private Camera camera;
+	private Viewport viewport;
 	
 	Mat4 modelMat, viewMat, projMat, projViewModelMat, screenMat;
 	
-	private BufferedImage image;
+	private BufferedImage image, texture;
 	private WritableRaster raster;
-	
-	private BufferedImage texture;
-	private int textureWidth, textureHeight;
 	
 	private int[] colorBuffer;
 	private double[] zBuffer;
-	private int width, height;
+	
+	private int viewportWidth, viewportHeight;
+	private int textureWidth, textureHeight;
+	private int posX, posY, decalX, decalY;
+	private int eventButton;
 	
 	/** Constructeur */
-	public WorldRenderer(World3D world, Camera camera, int width, int height) {
+	public Viewer(World3D world, Camera camera, int width, int height) {
+		super();
 		this.world = world;
 		this.camera = camera;
+		this.viewport = new Viewport(0, 0, width, height);
+		this.viewportWidth = width;
+		this.viewportHeight = height;
 		
 		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		this.texture = null;
 		this.raster = image.getRaster();
 		
 		this.colorBuffer = new int[width * height * 3];
 		this.zBuffer = new double[width * height];
-		this.width = width;
-		this.height = height;
+		
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		addMouseWheelListener(this);
+		
+		setPreferredSize(new Dimension(width, height));
 	}
 	
-	/** Retourne l'image du rendu */
-	public BufferedImage getImage() {
-		return image;
+	public int getColor(int r, int g, int b) {
+		return (r << 16) | (g << 8) | b;
 	}
 	
-	public Mat4 screenMat() {
-		int w = width;
-		int h = height;
-		int n = 0;
-		int f = 1;
-		Mat4 m = new Mat4(new double[][] {
-				{w/2,   0,       0,     w/2},
-				{  0, h/2,       0,     h/2},
-				{  0,   0, (f-n)/2, (f+n)/2},
-				{  0,   0,       0,       1}
-		});
-		return m;
-	}
-	
-	/** Dessine le rendu */
-	public void drawScene() {
+	/** Calcul le rendu du monde depuis la camera */
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		
 		for (int i = 0; i < colorBuffer.length; i++) {
 			colorBuffer[i] = 0;
 		}
@@ -82,7 +87,7 @@ public class WorldRenderer {
 		
 		viewMat = camera.viewMat();
 		projMat = camera.projMat();
-		screenMat = screenMat();
+		screenMat = viewport.screenMat();
 		
 		for (Shape3D shape : world.getListShape()) {
 			modelMat = shape.modelMat();
@@ -92,8 +97,29 @@ public class WorldRenderer {
 		modelMat = new Mat4();
 		projViewModelMat = projMat.mult(viewMat).mult(modelMat);
 		
-		raster.setPixels(0, 0, width, height, colorBuffer);
+		drawRepere(world.getBase());
+		
+		//drawRepere(world.getBase());
+//		g.setColor(Color.red);
+//		drawLine3D(world.getOrigine(), new Point3D(8, 0, 0));
+		
+		//Draw center
+		Color color = Color.cyan;
+		Point3D center = camera.getObserver();
+//		drawLine3D(new Point3D(0, 0, 0), new Point3D(center.getX(), 0, 0), color);
+//		drawLine3D(new Point3D(center.getX(), 0, 0), new Point3D(center.getX(), center.getY(), 0), color);
+		drawLine3D(new Point3D(center.getX(), center.getY(), 0), new Point3D(center.getX(), center.getY(), center.getZ()), color);
+		
+		raster.setPixels(0, 0, viewportWidth, viewportHeight, colorBuffer);
+		g.drawImage(image, 0, 0, null);
+		
+		// Draw cursor
+		g.setColor(Color.magenta);
+		g.drawLine(viewportWidth/2-4, viewportHeight/2, viewportWidth/2+4, viewportHeight/2);
+		g.drawLine(viewportWidth/2, viewportHeight/2-4, viewportWidth/2, viewportHeight/2+4);
 	}
+	
+	
 	
 	/** Retourne l'aire du triangle */
 	private double areaTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
@@ -309,6 +335,22 @@ public class WorldRenderer {
 	
 	
 	
+	/** Dessine un point defini place dans le monde avec la modelMat */
+	private void drawPoint3D(Graphics g, Point3D point) {
+		Vec4 proj_p = getProjectivePoint3D(point).normalized();
+		Point3D p = getWindowScreenPoint3D(proj_p);
+		int x = (int) p.getX();
+		int y = (int) p.getY();
+		
+		int index;
+		if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+			index = ((y * viewportWidth) + x) * 3;
+//			colorBuffer[index + 0] = color.getRed();
+//			colorBuffer[index + 1] = color.getGreen();
+//			colorBuffer[index + 2] = color.getBlue();
+		}
+	}
+	
 	/** Dessine une droite entre deux points places dans le monde avec la modelMat */
 	private void drawLine3D(Point3D point1, Point3D point2, Color color) {
 		Vec4 proj_p1 = getProjectivePoint3D(point1);
@@ -333,8 +375,8 @@ public class WorldRenderer {
 			for (Point2D p : Bresenham2D(p1.getX(), p1.getY(), p2.getX(), p2.getY())) {
 				x = p.getX();
 				y = p.getY();
-				if (x >= 0 && x < width && y >= 0 && y < height) {
-					index = ((y * width) + x) * 3;
+				if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+					index = ((y * viewportWidth) + x) * 3;
 					
 					d1 = Point2D.distance(p1, p);
 					d2 = Point2D.distance(p, p2);
@@ -346,8 +388,8 @@ public class WorldRenderer {
 					h = coef1 + coef2;
 					z = ((coef1 * ndcP1.getZ()) + (coef2 * ndcP2.getZ())) / h;
 					
-	    			if (z < zBuffer[(y * width) + x]) {
-	    				zBuffer[(y * width) + x] = z;
+	    			if (z < zBuffer[(y * viewportWidth) + x]) {
+	    				zBuffer[(y * viewportWidth) + x] = z;
 	    				
 	    				colorBuffer[index + 0] = color.getRed();
 						colorBuffer[index + 1] = color.getGreen();
@@ -423,8 +465,8 @@ public class WorldRenderer {
 				c = listCell.get(k);
 				y = minY + k;
 				for (int x = c.x1; x <= c.x2; x++) {
-					if (x >= 0 && x < width && y >= 0 && y < height) {
-		    			index = ((y * width) + x) * 3;
+					if (x >= 0 && x < viewportWidth && y >= 0 && y < viewportHeight) {
+		    			index = ((y * viewportWidth) + x) * 3;
 		    			
 		    			area1 = areaTriangle(p2.getX(), p2.getY(), p3.getX(), p3.getY(), x, y);
 		    			area2 = areaTriangle(p1.getX(), p1.getY(), p3.getX(), p3.getY(), x, y);
@@ -448,8 +490,8 @@ public class WorldRenderer {
 		    				b = localColor.getBlue();
 		    			}
 		    			
-		    			if (z < zBuffer[(y * width) + x]) {
-		    				zBuffer[(y * width) + x] = z;
+		    			if (z < zBuffer[(y * viewportWidth) + x]) {
+		    				zBuffer[(y * viewportWidth) + x] = z;
 		    				
 		    				colorBuffer[index + 0] = r;
 		    				colorBuffer[index + 1] = g;
@@ -493,6 +535,174 @@ public class WorldRenderer {
 				}
 			}
 		}
+	}
+	
+	/** Dessine la base definie dans le repere World */
+	private void drawRepere(Base3D base) {
+		Point3D origin = new Point3D(0, 0, 0);
+		Point3D p = new Point3D(1, 0, 0);
+		drawLine3D(origin, p, Color.red);
+		p.setX(0);
+		p.setY(1);
+		drawLine3D(origin, p, Color.green);
+		p.setY(0);
+		p.setZ(1);
+		drawLine3D(origin, p, Color.blue);
+	}
+	
+	
+	
+	// Mouvement de la camera
+	/** Translate la camera sur le plan d'affichage */
+	public void moveTranslation(double dx, double dy) {
+		Base3D base = camera.getBase();
+		Vecteur3D t = new Vecteur3D(dx, dy, 0);
+		Vecteur3D u = base.oi;
+		Vecteur3D v = base.oj;
+		Vecteur3D k = base.ok;
+		double dx2 = u.getDx()*t.getDx() + v.getDx()*t.getDy() + k.getDx()*t.getDz();
+		double dy2 = u.getDy()*t.getDx() + v.getDy()*t.getDy() + k.getDy()*t.getDz();
+		double dz2 = u.getDz()*t.getDx() + v.getDz()*t.getDy() + k.getDz()*t.getDz();
+		camera.translation(dx2, dy2, dz2);
+	}
+	
+	/** Fait avancer la camera dans la direction de la vue */
+	public void moveForward(int step) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
+		
+		// Direction
+		Vecteur3D vect = new Vecteur3D(0, 0, 0);
+		vect.setDx(pointObserver.getX() - pointCamera.getX());
+		vect.setDy(pointObserver.getY() - pointCamera.getY());
+		vect.setDz(pointObserver.getZ() - pointCamera.getZ());
+		
+		double ratio = 0.25;
+		double dx = step * ratio * vect.getDx();
+		double dy = step * ratio * vect.getDy();
+		double dz = step * ratio * vect.getDz();
+		
+		camera.translation(dx, dy, dz);
+	}
+	
+	/** Fait tourner la camera autour du point regarde */
+	public void moveRotation(double dx, double dy) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
+		
+		// Direction
+		Vecteur3D vect = new Vecteur3D(0, 0, 0);
+		vect.setDx(pointCamera.getX() - pointObserver.getX());
+		vect.setDy(pointCamera.getY() - pointObserver.getY());
+		vect.setDz(pointCamera.getZ() - pointObserver.getZ());
+		
+		double r = vect.getNorme();
+		double pPhi = Math.acos(vect.getDz() / r);
+		double pTeta = Math.acos(vect.getDx() / (r*Math.sin(pPhi)));
+		if (vect.getDy() < 0) {
+			pTeta *= -1.0;
+		}
+		pTeta += ((float) dx) / ((float) viewportWidth) * Math.PI;
+		pPhi += ((float) -dy) / ((float) viewportHeight) * Math.PI;
+		if (pPhi < Math.PI/6) {
+			pPhi = Math.PI/6;
+		} else if (pPhi > 5*Math.PI/6) {
+			pPhi = 5*Math.PI/6;
+		}
+		
+		double x = pointObserver.getX() + r * Math.sin(pPhi) * Math.cos(pTeta);
+		double y = pointObserver.getY() + r * Math.sin(pPhi) * Math.sin(pTeta);
+		double z = pointObserver.getZ() + r * Math.cos(pPhi);
+		camera.placeAt(x, y, z);
+	}
+	
+	/** Change le point regarde sur la sphere englobant la camera */
+	public void rotationHead(int dx, int dy) {
+		Point3D pointCamera = camera.getOrigine();
+		Point3D pointObserver = camera.getObserver();
+		
+		// Direction
+		Vecteur3D vect = new Vecteur3D(0, 0, 0);
+		vect.setDx(pointObserver.getX() - pointCamera.getX());
+		vect.setDy(pointObserver.getY() - pointCamera.getY());
+		vect.setDz(pointObserver.getZ() - pointCamera.getZ());
+		
+		double r = vect.getNorme();
+		double pPhi = Math.acos(vect.getDz() / r);
+		double pTeta = Math.acos(vect.getDx() / (r*Math.sin(pPhi)));
+		if (vect.getDy() < 0) {
+			pTeta *= -1.0;
+		}
+		pTeta += ((float) dx) / ((float) viewportWidth) * Math.PI;
+		pPhi += ((float) -dy) / ((float) viewportHeight) * Math.PI;
+		if (pPhi < Math.PI/6) {
+			pPhi = Math.PI/6;
+		} else if (pPhi > 5*Math.PI/6) {
+			pPhi = 5*Math.PI/6;
+		}
+		
+		double x = pointCamera.getX() + r * Math.sin(pPhi) * Math.cos(pTeta);
+		double y = pointCamera.getY() + r * Math.sin(pPhi) * Math.sin(pTeta);
+		double z = pointCamera.getZ() + r * Math.cos(pPhi);
+		camera.lookAt(x, y, z);
+	}
+	
+	
+	// Detection de la souris
+	public void mouseDragged(MouseEvent e) {
+		decalX = e.getX() - posX;
+		decalY = e.getY() - posY;
+		
+		// Click gauche
+		if (eventButton == 1) {
+			moveTranslation(-decalX/320.0, -decalY/240.0);
+		}
+		
+		// Click molette
+		if (eventButton == 2) {
+			moveRotation(-decalX, decalY);
+			//rotationHead(decalX, decalY);
+		}
+		
+		// Click droit
+		if (eventButton == 3) {
+			//moveLook(decalX, decalY);
+		}
+		
+		posX = e.getX();
+		posY = e.getY();
+		repaint();
+	}
+	
+	public void mouseMoved(MouseEvent e) {
+		
+	}
+	
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+	
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+	
+	public void mouseExited(MouseEvent e) {
+		
+	}
+	
+	public void mousePressed(MouseEvent e) {
+		posX = e.getX();
+		posY = e.getY();
+		eventButton = e.getButton();
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+		eventButton = 0;
+	}
+	
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		moveForward(-e.getWheelRotation());
+		repaint();
 	}
 	
 	
