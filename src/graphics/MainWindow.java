@@ -1,16 +1,10 @@
 package graphics;
 
 import java.awt.BorderLayout;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Observer;
-
-import javax.swing.BorderFactory;
+import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import world3d.Camera;
 import world3d.World3D;
@@ -26,12 +20,21 @@ public class MainWindow extends JFrame {
 		this.setFocusable(true);
 //		this.setJMenuBar(new Menu());
 		
-		ControlPanel control = new ControlPanel(world, camera);
+		WorldPanel worldPanel = new WorldPanel(world);
+		CameraPanel cameraPanel = new CameraPanel();
+		
+		camera.addObserver(cameraPanel);
+		
+		JTabbedPane controlPanel = new JTabbedPane();
+		controlPanel.setPreferredSize(new Dimension(192, 480));
+		controlPanel.add(worldPanel);
+		controlPanel.add(cameraPanel);
+		
 		Viewer observer = new Viewer(world, camera, width, height);
 		
 		JPanel panneau = new JPanel();
 		panneau.setLayout(new BorderLayout());
-		panneau.add(control, BorderLayout.WEST);
+		panneau.add(controlPanel, BorderLayout.WEST);
 		panneau.add(observer, BorderLayout.CENTER);
 		setContentPane(panneau);
 		

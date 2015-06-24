@@ -31,7 +31,7 @@ public class WorldPanel extends JPanel {
 	private World3D world;
 	
 	private Shape3D selectedShape;
-	private JCheckBox wireframe;
+	private JCheckBox hidden, modeWireframe;
 	
 	/** Consturcteur */
 	public WorldPanel(World3D world) {
@@ -59,8 +59,20 @@ public class WorldPanel extends JPanel {
 		panelList.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
 		selectedShape = null;
-		wireframe = new JCheckBox("Mode wireframe", false);
-		wireframe.addActionListener(new ActionListener() {
+		
+		hidden = new JCheckBox("Hidden", false);
+		hidden.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (selectedShape != null) {
+					selectedShape.toggleVisible();
+					world.needRepaint();
+				}
+			}
+		});
+		
+		modeWireframe = new JCheckBox("Wireframe mode", false);
+		modeWireframe.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedShape != null) {
@@ -72,7 +84,8 @@ public class WorldPanel extends JPanel {
 		
 		JPanel panelFeatures = new JPanel();
 		panelFeatures.setLayout(new GridLayout(3, 1));
-		panelFeatures.add(wireframe);
+		panelFeatures.add(hidden);
+		panelFeatures.add(modeWireframe);
 		
 		add(panelList, BorderLayout.NORTH);
 		add(panelFeatures, BorderLayout.CENTER);
@@ -85,7 +98,9 @@ public class WorldPanel extends JPanel {
 			int index = list.locationToIndex(e.getPoint());
 			Shape3D shape = world.getShape(index);
 			selectedShape = world.getShape(index);
-			wireframe.setSelected(shape.isWireframeMode());
+			
+			hidden.setSelected(!shape.isVisible());
+			modeWireframe.setSelected(shape.isWireframeMode());
 		}
 	}
 }

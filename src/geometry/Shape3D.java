@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 import math.Base3D;
 import math.Mat4;
 import math.Point3D;
-import math.Viewport;
 
 public class Shape3D {
 	
@@ -21,8 +20,8 @@ public class Shape3D {
 	private Base3D base;
 	private ArrayList<Triangle> listTriangle;
 	private String pathTexture;
-	public Viewport viewport;
 	private int render;
+	private boolean visible;
 	private String name;
 	
 	/** Constructeur */
@@ -32,6 +31,7 @@ public class Shape3D {
 		this.listTriangle = new ArrayList<Triangle>();
 		this.pathTexture = "";
 		this.render = OPAQUE;
+		this.visible = true;
 		this.setName("Objet");
 	}
 	
@@ -128,8 +128,21 @@ public class Shape3D {
 		scaleZ(r);
 	}
 	
+	
+	public boolean isVisible() {
+		return visible;
+	}
+	
 	public boolean isWireframeMode() {
 		return (render == WIREFRAME);
+	}
+	
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+	
+	public void toggleVisible() {
+		this.visible = !visible;
 	}
 	
 	public void setRenderingMode(int render) {

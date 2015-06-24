@@ -101,9 +101,11 @@ public class Viewer extends JComponent implements
 		screenMat = viewport.screenMat();
 		
 		for (Shape3D shape : world.getListShape()) {
-			modelMat = shape.modelMat();
-			projViewModelMat = projMat.mult(viewMat).mult(modelMat);
-			drawShape3D(shape);
+			if (shape.isVisible()) {
+				modelMat = shape.modelMat();
+				projViewModelMat = projMat.mult(viewMat).mult(modelMat);
+				drawShape3D(shape);
+			}
 		}
 		modelMat = new Mat4();
 		projViewModelMat = projMat.mult(viewMat).mult(modelMat);
