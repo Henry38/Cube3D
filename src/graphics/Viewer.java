@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JComponent;
 
@@ -26,7 +28,8 @@ import world3d.World3D;
 public class Viewer extends JComponent implements
 			MouseMotionListener,
 			MouseListener,
-			MouseWheelListener {
+			MouseWheelListener,
+			Observer {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -68,6 +71,14 @@ public class Viewer extends JComponent implements
 		addMouseWheelListener(this);
 		
 		setPreferredSize(new Dimension(width, height));
+		world.addObserver(this);
+	}
+	
+	public void setViewport(int width, int height) {
+		this.viewport.setWidth(width);
+		this.viewport.setHeight(height);
+		this.viewportWidth = width;
+		this.viewportHeight = height;
 	}
 	
 	public int getColor(int r, int g, int b) {
@@ -702,6 +713,12 @@ public class Viewer extends JComponent implements
 	
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		moveForward(-e.getWheelRotation());
+		repaint();
+	}
+	
+	
+	@Override
+	public void update(Observable obs, Object obj) {
 		repaint();
 	}
 	

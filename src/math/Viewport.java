@@ -43,6 +43,26 @@ public class Viewport {
 		return height;
 	}
 	
+	/** Retourne la coordonnee x du viewport */
+	public void setX(int x) {
+		this.x = x;
+	}
+	
+	/** Retourne la coordonnee y du viewport */
+	public void setY(int y) {
+		this.y = y;
+	}
+	
+	/** Retourne la largeur du viewport */
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	/** Retourne la hauteur du viewport */
+	public void setHeight(int height) {
+		this.height = height;
+	}
+	
 	public Mat4 screenMat() {
 		int w = getWidth();
 		int h = getHeight();

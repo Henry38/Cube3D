@@ -128,8 +128,20 @@ public class Shape3D {
 		scaleZ(r);
 	}
 	
+	public boolean isWireframeMode() {
+		return (render == WIREFRAME);
+	}
+	
 	public void setRenderingMode(int render) {
 		this.render = render;
+	}
+	
+	public void toggleRenderingMode() {
+		if (isWireframeMode()) {
+			render = OPAQUE;
+		} else {
+			render = WIREFRAME;
+		}
 	}
 	
 	public int getRenderingMode() {

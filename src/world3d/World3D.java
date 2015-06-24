@@ -4,12 +4,13 @@ import geometry.Light;
 import geometry.Shape3D;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 import math.Base3D;
 import math.Point3D;
 import math.Vecteur3D;
 
-public class World3D {
+public class World3D extends Observable {
 	
 	private Base3D repereWorld;
 	private ArrayList<Shape3D> listShape;
@@ -52,5 +53,10 @@ public class World3D {
 
 	public Shape3D getShape(int i) {
 		return listShape.get(i);
+	}
+	
+	public void needRepaint() {
+		setChanged();
+		notifyObservers();
 	}
 }

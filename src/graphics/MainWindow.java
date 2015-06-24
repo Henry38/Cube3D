@@ -1,7 +1,11 @@
 package graphics;
 
 import java.awt.BorderLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.Observer;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -15,6 +19,7 @@ public class MainWindow extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
+	/** Constructeur */
 	public MainWindow(World3D world, Camera camera, int width, int height) {
 		super("3D Application");
 		
@@ -30,10 +35,10 @@ public class MainWindow extends JFrame {
 		panneau.add(observer, BorderLayout.CENTER);
 		setContentPane(panneau);
 		
+		setResizable(true);
 		pack();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		setResizable(false);
 	}
 	
 //	private class Menu extends JMenuBar {
