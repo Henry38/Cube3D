@@ -2,7 +2,6 @@ package geometry;
 
 import graphics.WorldRenderer;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import world3d.Camera;

@@ -3,9 +3,7 @@ package geometry;
 import java.awt.Color;
 
 import math.Coord;
-import math.Mat4;
 import math.Point3D;
-import math.Vec4;
 import math.Vecteur3D;
 
 public class Triangle {

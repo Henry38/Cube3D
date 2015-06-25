@@ -6,10 +6,6 @@ import java.util.Observer;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import math.Point3D;
-import math.Vecteur3D;
-import world3d.Camera;
-
 public class CameraPanel extends JPanel implements Observer {
 	
 	private static final long serialVersionUID = 1L;

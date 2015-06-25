@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -19,9 +18,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import world3d.World3D;
 
 public class WorldPanel extends JPanel {
@@ -34,7 +30,7 @@ public class WorldPanel extends JPanel {
 	private JCheckBox hidden, modeWireframe;
 	
 	/** Consturcteur */
-	public WorldPanel(World3D world) {
+	public WorldPanel(final World3D world) {
 		super();
 		this.world = world;
 		

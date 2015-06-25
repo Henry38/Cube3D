@@ -1,12 +1,10 @@
 package graphics;
 
 import geometry.Light;
-import geometry.Miroir;
 import geometry.Shape3D;
 import geometry.Triangle;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
