@@ -2,19 +2,20 @@ package graphics;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import world3d.Camera;
-import world3d.World3D;
+import world.Camera;
+import world.Scene3D;
 
 public class MainWindow extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
 	/** Constructeur */
-	public MainWindow(World3D world, Camera camera, int width, int height) {
+	public MainWindow(Scene3D world, Camera camera, int width, int height) {
 		super("3D Application");
 		
 		this.setFocusable(true);

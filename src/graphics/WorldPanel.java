@@ -18,19 +18,20 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import world3d.World3D;
+
+import world.Scene3D;
 
 public class WorldPanel extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 	private JList<String> list;
-	private World3D world;
+	private Scene3D world;
 	
 	private Shape3D selectedShape;
 	private JCheckBox hidden, modeWireframe;
 	
 	/** Consturcteur */
-	public WorldPanel(final World3D world) {
+	public WorldPanel(final Scene3D world) {
 		super();
 		this.world = world;
 		

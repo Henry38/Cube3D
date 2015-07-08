@@ -1,6 +1,5 @@
 package graphics;
 
-import geometry.Light;
 import geometry.Shape3D;
 import geometry.Triangle;
 
@@ -16,12 +15,13 @@ import math.Point2D;
 import math.Point3D;
 import math.Vec4;
 import math.Vecteur3D;
-import world3d.Camera;
-import world3d.World3D;
+import world.Camera;
+import world.Light;
+import world.Scene3D;
 
 public class WorldRenderer {
 	
-	private World3D world;
+	private Scene3D world;
 	private Camera camera;
 	
 	Mat4 modelMat, viewMat, projMat, projViewModelMat, screenMat;
@@ -37,7 +37,7 @@ public class WorldRenderer {
 	private int width, height;
 	
 	/** Constructeur */
-	public WorldRenderer(World3D world, Camera camera, int width, int height) {
+	public WorldRenderer(Scene3D world, Camera camera, int width, int height) {
 		this.world = world;
 		this.camera = camera;
 		

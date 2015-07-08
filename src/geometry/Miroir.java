@@ -4,9 +4,9 @@ import graphics.WorldRenderer;
 
 import java.awt.image.BufferedImage;
 
-import world3d.Camera;
-import world3d.Camera.TYPE;
-import world3d.World3D;
+import world.Camera;
+import world.Scene3D;
+import world.Camera.TYPE;
 import math.Coord;
 import math.Point3D;
 import math.Vecteur3D;
@@ -19,7 +19,7 @@ public class Miroir extends Shape3D {
 	private BufferedImage img;
 	
 	/** Consturcteur */
-	public Miroir(Shape3D parent, double x, double y, double z, World3D world) {
+	public Miroir(Shape3D parent, double x, double y, double z, Scene3D world) {
 		super(parent, x, y, z);
 		
 		Point3D p1 = new Point3D(0, 0, 0);

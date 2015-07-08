@@ -1,6 +1,5 @@
 package graphics;
 
-import geometry.Light;
 import geometry.Shape3D;
 import geometry.Triangle;
 
@@ -22,8 +21,9 @@ import java.util.Observer;
 import javax.swing.JComponent;
 
 import math.*;
-import world3d.Camera;
-import world3d.World3D;
+import world.Camera;
+import world.Light;
+import world.Scene3D;
 
 public class Viewer extends JComponent implements
 			MouseMotionListener,
@@ -33,7 +33,7 @@ public class Viewer extends JComponent implements
 	
 	private static final long serialVersionUID = 1L;
 	
-	private World3D world;
+	private Scene3D world;
 	private Camera camera;
 	private Viewport viewport;
 	
@@ -51,7 +51,7 @@ public class Viewer extends JComponent implements
 	private int eventButton;
 	
 	/** Constructeur */
-	public Viewer(World3D world, Camera camera, int width, int height) {
+	public Viewer(Scene3D world, Camera camera, int width, int height) {
 		super();
 		this.world = world;
 		this.camera = camera;

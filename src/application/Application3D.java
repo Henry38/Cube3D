@@ -6,16 +6,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
+
 import math.Point3D;
 import math.Vecteur3D;
 import geometry.Cube;
 import geometry.Damier;
-import geometry.Light;
 import geometry.Shape3D;
 import graphics.MainWindow;
-import world3d.Camera;
-import world3d.Camera.TYPE;
-import world3d.World3D;
+import world.Camera;
+import world.Light;
+import world.Scene3D;
+import world.Camera.TYPE;
 
 public class Application3D extends Thread {
 	
@@ -59,7 +60,7 @@ public class Application3D extends Thread {
 		teapot.setName("Teapot");
 		cube1.setTexture("./image/cube1.jpg");
 		cube1.setName("Cube");
-		damier.setTexture("./image/cube1.jpg");
+		damier.setTexture("./image/cube2.jpg");
 		
 		// Transformation
 		teapot.rotationOx(Math.PI/2);
@@ -68,7 +69,7 @@ public class Application3D extends Thread {
 		cube1.translation(0.1, 0.1, 0);
 		
 		// Creation du monde
-		World3D world = new World3D();
+		Scene3D world = new Scene3D();
 //		world.addShape(piece);
 		world.addShape(teapot);
 		world.addShape(cube1);
